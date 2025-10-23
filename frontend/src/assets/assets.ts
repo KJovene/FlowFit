@@ -1,11 +1,19 @@
 import IconMuscu from './IconMuscu.svg'
 import IconYoga from './IconYoga.svg'
 import IconMobility from './IconMobility.svg'
+import Arrow from './Arrow.svg'
+import Profil from './Profil.svg'
+import Home from './Home.svg'
+import MesSeances from './MesSeances.svg'
 
 export const assets = {
     IconMuscu,
     IconYoga,
-    IconMobility
+    IconMobility,
+    Arrow,
+    Profil,
+    Home,
+    MesSeances
 }
 
 export const categories_list = [
