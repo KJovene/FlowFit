@@ -6,7 +6,7 @@ const App = () => {
 
   return (
     <>
-      <div className='width: 80%'>
+      <div>
         <Routes>
           <Route path='/' element={<Home />} />
         </Routes>
