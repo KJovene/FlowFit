@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+.icon-blue {
+  filter: invert(0.5) sepia(1) saturate(50) hue-rotate(200deg) brightness(1.2);
+}
