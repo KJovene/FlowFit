@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
 import exerciseRoutes from "./routes/exercises.js";
+import authRoutes from "./routes/auth.js";
 import "dotenv/config";
 
 // app config
@@ -17,6 +18,7 @@ app.use("/uploads", express.static("uploads"));
 connectDB();
 
 // api endpoints
+app.use("/api/auth", authRoutes);
 app.use("/api/exercises", exerciseRoutes);
 
 app.get("/", (req, res) => {
