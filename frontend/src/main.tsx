@@ -1,16 +1,28 @@
-import { StrictMode } from "react";
+import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
 import "./index.css";
-import App from "./App.tsx";
+import { useAuthStore } from "@/stores/authStore";
 
-createRoot(document.getElementById("root")!).render(
+import { routeTree } from "./routeTree.gen";
+
+const router = createRouter({ routeTree });
+
+// Component to initialize auth
+function App() {
+  useEffect(() => {
+    // Initialize auth from localStorage on app start
+    useAuthStore.getState().initAuth();
+  }, []);
+
+  return <RouterProvider router={router} />;
+}
+
+const rootElement = document.getElementById("root");
+const root = createRoot(rootElement!);
+
+root.render(
   <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
+    <App />
   </StrictMode>
 );
