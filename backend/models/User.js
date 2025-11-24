@@ -1,58 +1,69 @@
-import mongoose from "mongoose";
+import { DataTypes } from "sequelize";
+import sequelize from "../config/db.js";
 import bcrypt from "bcrypt";
 
-const userSchema = new mongoose.Schema(
+const User = sequelize.define(
+  "User",
   {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     username: {
-      type: String,
-      required: [true, "Veuillez fournir un nom d'utilisateur"],
+      type: DataTypes.STRING,
+      allowNull: false,
       unique: true,
-      trim: true,
-      minlength: [
-        3,
-        "Le nom d'utilisateur doit contenir au moins 3 caractères",
-      ],
+      validate: {
+        len: {
+          args: [3, 50],
+          msg: "Le nom d'utilisateur doit contenir au moins 3 caractères",
+        },
+      },
     },
     email: {
-      type: String,
-      required: [true, "Veuillez fournir un email"],
+      type: DataTypes.STRING,
+      allowNull: false,
       unique: true,
-      lowercase: true,
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        "Veuillez fournir un email valide",
-      ],
+      validate: {
+        isEmail: {
+          msg: "Veuillez fournir un email valide",
+        },
+      },
     },
     password: {
-      type: String,
-      required: [true, "Veuillez fournir un mot de passe"],
-      minlength: [6, "Le mot de passe doit contenir au moins 6 caractères"],
-      select: false,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: {
+          args: [6, 255],
+          msg: "Le mot de passe doit contenir au moins 6 caractères",
+        },
+      },
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    hooks: {
+      beforeCreate: async (user) => {
+        if (user.password) {
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(user.password, salt);
+        }
+      },
+      beforeUpdate: async (user) => {
+        if (user.changed("password")) {
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(user.password, salt);
+        }
+      },
+    },
+  }
 );
 
-// Hash password before saving
-userSchema.pre("save", async function (next) {
-  // Only hash if password is new or modified
-  if (!this.isModified("password")) {
-    next();
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
 // Method to compare password
-userSchema.methods.matchPassword = async function (enteredPassword) {
+User.prototype.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
-
-const User = mongoose.model("User", userSchema);
 
 export default User;

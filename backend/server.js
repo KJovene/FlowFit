@@ -3,11 +3,14 @@ import cors from "cors";
 import { connectDB } from "./config/db.js";
 import exerciseRoutes from "./routes/exercises.js";
 import authRoutes from "./routes/auth.js";
-import "dotenv/config";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
 
 // app config
 const app = express();
-const port = 4000;
+const port = process.env.PORT || 4000;
 
 // middleware
 app.use(express.json());

@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import { Op } from "sequelize";
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -13,34 +14,47 @@ const generateToken = (id) => {
 // @access  Public
 export const register = async (req, res) => {
   try {
+    console.log("📨 Requête register reçue");
+    console.log("📦 Body:", {
+      ...req.body,
+      password: "***",
+      passwordConfirm: "***",
+    });
+
     const { username, email, password, passwordConfirm } = req.body;
 
     // Validation
     if (!username || !email || !password || !passwordConfirm) {
+      console.log("❌ Validation échouée: champs manquants");
       return res
         .status(400)
         .json({ success: false, message: "Veuillez remplir tous les champs" });
     }
 
     if (password !== passwordConfirm) {
+      console.log("❌ Validation échouée: mots de passe différents");
       return res.status(400).json({
         success: false,
         message: "Les mots de passe ne correspondent pas",
       });
     }
 
-    // Check if user already exists
+    // Check if user already exists (Sequelize syntax)
     const userExists = await User.findOne({
-      $or: [{ email }, { username }],
+      where: {
+        [Op.or]: [{ email }, { username }],
+      },
     });
 
     if (userExists) {
+      console.log("❌ Utilisateur existe déjà:", userExists.email);
       return res.status(400).json({
         success: false,
         message: "Cet email ou nom d'utilisateur est déjà utilisé",
       });
     }
 
+    console.log("✅ Création de l'utilisateur...");
     // Create user
     const user = await User.create({
       username,
@@ -48,20 +62,24 @@ export const register = async (req, res) => {
       password,
     });
 
-    // Generate token
-    const token = generateToken(user._id);
+    console.log("✅ Utilisateur créé:", user.id);
 
+    // Generate token (use user.id instead of user._id)
+    const token = generateToken(user.id);
+
+    console.log("✅ Token généré, envoi de la réponse");
     res.status(201).json({
       success: true,
       message: "Utilisateur créé avec succès",
       token,
       user: {
-        id: user._id,
+        id: user.id,
         username: user.username,
         email: user.email,
       },
     });
   } catch (error) {
+    console.error("💥 Erreur register:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -74,50 +92,65 @@ export const register = async (req, res) => {
 // @access  Public
 export const login = async (req, res) => {
   try {
+    console.log("📨 Requête login reçue");
+    console.log("📦 Body:", { ...req.body, password: "***" });
+
     const { email, password } = req.body;
 
     // Validation
     if (!email || !password) {
+      console.log("❌ Validation échouée: champs manquants");
       return res.status(400).json({
         success: false,
         message: "Veuillez fournir un email et un mot de passe",
       });
     }
 
-    // Find user and get password field
-    const user = await User.findOne({ email }).select("+password");
+    console.log("🔍 Recherche de l'utilisateur:", email);
+    // Find user (Sequelize syntax - password is already included)
+    const user = await User.findOne({ where: { email } });
 
     if (!user) {
+      console.log("❌ Utilisateur non trouvé:", email);
       return res.status(401).json({
         success: false,
         message: "Email ou mot de passe incorrect",
       });
     }
+
+    console.log("✅ Utilisateur trouvé:", user.id, user.email);
+    console.log("🔐 Vérification du mot de passe...");
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
 
+    console.log("🔐 Résultat matchPassword:", isMatch);
+
     if (!isMatch) {
+      console.log("❌ Mot de passe incorrect");
       return res.status(401).json({
         success: false,
         message: "Email ou mot de passe incorrect",
       });
     }
 
-    // Generate token
-    const token = generateToken(user._id);
+    console.log("✅ Mot de passe correct, génération du token...");
+    // Generate token (use user.id instead of user._id)
+    const token = generateToken(user.id);
 
+    console.log("✅ Token généré, envoi de la réponse");
     res.status(200).json({
       success: true,
       message: "Connecté avec succès",
       token,
       user: {
-        id: user._id,
+        id: user.id,
         username: user.username,
         email: user.email,
       },
     });
   } catch (error) {
+    console.error("💥 Erreur login:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -130,13 +163,24 @@ export const login = async (req, res) => {
 // @access  Private
 export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    // Sequelize syntax: findByPk instead of findById
+    const user = await User.findByPk(req.user.id, {
+      attributes: { exclude: ["password"] },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Utilisateur non trouvé",
+      });
+    }
 
     res.status(200).json({
       success: true,
       data: user,
     });
   } catch (error) {
+    console.error("GetMe error:", error);
     res.status(500).json({
       success: false,
       message: error.message,

@@ -1,38 +1,40 @@
-import mongoose from "mongoose";
+import { DataTypes } from "sequelize";
+import sequelize from "../config/db.js";
 
-const exerciseSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Please provide an exercise name"],
-    trim: true,
+export const Exercise = sequelize.define(
+  "Exercise",
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    category: {
+      type: DataTypes.ENUM("Musculation", "Yoga", "Mobilité"),
+      allowNull: false,
+    },
+    subcategory: {
+      type: DataTypes.ENUM("Dos", "Haut du corps", "Bassin", "Bas de corps"),
+      allowNull: false,
+    },
+    type: {
+      type: DataTypes.ENUM("Quantité", "Temps"),
+      allowNull: false,
+    },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
-  description: {
-    type: String,
-    required: [true, "Please provide a description"],
-  },
-  category: {
-    type: String,
-    enum: ["Musculation", "Yoga", "Mobilité"],
-    required: [true, "Please select a category"],
-  },
-  subcategory: {
-    type: String,
-    enum: ["Dos", "Haut du corps", "Bassin", "Bas de corps"],
-    required: [true, "Please select a subcategory"],
-  },
-  type: {
-    type: String,
-    enum: ["Quantité", "Temps"],
-    required: [true, "Choisissez le type de votre exercice"],
-  },
-  image: {
-    type: String,
-    required: [true, "Please upload an image"],
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
-
-export const Exercise = mongoose.model("Exercise", exerciseSchema);
+  {
+    timestamps: true,
+  }
+);
