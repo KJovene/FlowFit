@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 
-export const Exercise = sequelize.define(
+const Exercise = sequelize.define(
   "Exercise",
   {
     id: {
@@ -25,10 +25,6 @@ export const Exercise = sequelize.define(
       type: DataTypes.ENUM("Dos", "Haut du corps", "Bassin", "Bas de corps"),
       allowNull: false,
     },
-    type: {
-      type: DataTypes.ENUM("Quantité", "Temps"),
-      allowNull: false,
-    },
     image: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -38,3 +34,5 @@ export const Exercise = sequelize.define(
     timestamps: true,
   }
 );
+
+export default Exercise;

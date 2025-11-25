@@ -6,7 +6,6 @@ export interface Exercise {
   description: string;
   category: "Musculation" | "Yoga" | "Mobilité";
   subcategory: "Dos" | "Haut du corps" | "Bassin" | "Bas de corps";
-  type: "Quantité" | "Temps";
   image: string;
   createdAt: string;
 }

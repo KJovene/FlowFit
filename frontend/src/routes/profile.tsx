@@ -1,6 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { User, LogOut, Calendar, Award, Activity } from "lucide-react";
+import {
+  User,
+  LogOut,
+  Calendar as CalendarIcon,
+  Award,
+  Activity,
+} from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
+import { Calendar } from "@/components/Calendar";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
@@ -21,7 +28,7 @@ function ProfilePage() {
   }
 
   return (
-    <section className="mx-auto max-w-4xl px-4 sm:px-6 pt-10 sm:pt-16 lg:pt-20 pb-10 sm:pb-16">
+    <section className="mx-auto max-w-6xl px-4 sm:px-6 pt-10 sm:pt-16 lg:pt-20 pb-10 sm:pb-16">
       <div className="space-y-6">
         {/* Profile Header */}
         <div className="rounded-3xl border border-neutral-800/90 bg-neutral-950/90 backdrop-blur-xl p-6 sm:p-8">
@@ -46,7 +53,7 @@ function ProfilePage() {
           <div className="grid sm:grid-cols-3 gap-4">
             <div className="rounded-2xl border border-neutral-800/80 bg-neutral-925/80 p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-sky-300" />
+                <CalendarIcon className="w-4 h-4 text-sky-300" />
                 <span className="text-xs text-neutral-400">Cette semaine</span>
               </div>
               <p className="text-2xl font-semibold text-neutral-50">3</p>
@@ -73,10 +80,23 @@ function ProfilePage() {
           </div>
         </div>
 
+        {/* Calendar & Rewards Section */}
+        <div>
+          <div className="mb-4">
+            <h2 className="text-2xl font-semibold tracking-tight text-neutral-50 mb-2">
+              Calendrier & récompenses
+            </h2>
+            <p className="text-base text-neutral-300">
+              Visualisez vos séances de la semaine et débloquez des rewards
+            </p>
+          </div>
+          <Calendar />
+        </div>
+
         {/* Activity Stats */}
         <div className="rounded-3xl border border-neutral-800/90 bg-neutral-950/90 p-6">
           <h2 className="text-lg font-semibold tracking-tight text-neutral-50 mb-4">
-            Statistiques
+            Répartition par catégorie
           </h2>
 
           <div className="space-y-4">

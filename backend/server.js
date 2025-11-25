@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
 import exerciseRoutes from "./routes/exercises.js";
+import sessionRoutes from "./routes/sessions.js";
 import authRoutes from "./routes/auth.js";
 import dotenv from "dotenv";
 
@@ -23,6 +24,7 @@ connectDB();
 // api endpoints
 app.use("/api/auth", authRoutes);
 app.use("/api/exercises", exerciseRoutes);
+app.use("/api/sessions", sessionRoutes);
 
 app.get("/", (req, res) => {
   res.send("API Working");

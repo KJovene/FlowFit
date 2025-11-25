@@ -41,9 +41,13 @@ function HomePage() {
 
           {/* CTA */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 pt-1">
-            <Link to="/programmes" className="btn-primary px-5 sm:px-6 py-2">
+            <Link to="/sessions" className="btn-primary px-5 sm:px-6 py-2">
               <Plus className="w-4 h-4 stroke-[1.5] mr-2" />
               Créer une séance
+            </Link>
+            <Link to="/exercises" className="btn-primary px-5 sm:px-6 py-2">
+              <Plus className="w-4 h-4 stroke-[1.5] mr-2" />
+              Créer un exercice
             </Link>
           </div>
 

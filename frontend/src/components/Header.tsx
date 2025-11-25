@@ -45,12 +45,6 @@ export function Header() {
           >
             Programmes
           </Link>
-          <Link
-            to="/calendar"
-            className="text-xs sm:text-sm hover:text-neutral-50 transition-colors"
-          >
-            Calendrier
-          </Link>
         </nav>
 
         {/* Actions */}
@@ -137,13 +131,6 @@ export function Header() {
             >
               Programmes
             </Link>
-            <Link
-              to="/calendar"
-              className="text-sm text-neutral-200 hover:text-sky-300 py-2 px-3 rounded-lg hover:bg-neutral-900/50 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Calendrier
-            </Link>
 
             {isAuthenticated && (
               <>
@@ -155,6 +142,20 @@ export function Header() {
                 >
                   <User className="w-4 h-4" />
                   <span>{user?.username || "Profil"}</span>
+                </Link>
+                <Link
+                  to="/exercises"
+                  className="text-sm text-neutral-200 hover:text-sky-300 py-2 px-3 rounded-lg hover:bg-neutral-900/50 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Exercices
+                </Link>
+                <Link
+                  to="/sessions"
+                  className="text-sm text-neutral-200 hover:text-sky-300 py-2 px-3 rounded-lg hover:bg-neutral-900/50 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Séances
                 </Link>
                 <button
                   onClick={handleLogout}
