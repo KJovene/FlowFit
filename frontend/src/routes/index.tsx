@@ -1,29 +1,127 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Activity,
   Dumbbell,
   Flower2,
   StretchHorizontal,
   Plus,
-  PlayCircle,
-  Timer,
-  Bell,
-  ArrowRight,
-  Play,
+  Sparkles,
+  TrendingUp,
+  Blend,
 } from "lucide-react";
-import { WorkoutCard } from "@/components/WorkoutCard";
 import { SessionCard } from "@/components/SessionCard";
+import { sessionService, type Session } from "@/services/sessions";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
 function HomePage() {
+  const navigate = useNavigate();
+  const [latestSessions, setLatestSessions] = useState<Session[]>([]);
+  const [topRatedSessions, setTopRatedSessions] = useState<Session[]>([]);
+  const [topMusculation, setTopMusculation] = useState<Session[]>([]);
+  const [topYoga, setTopYoga] = useState<Session[]>([]);
+  const [topMobilite, setTopMobilite] = useState<Session[]>([]);
+  const [topMixte, setTopMixte] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const allSessions = await sessionService.getAll();
+
+        // Les 8 dernières séances créées
+        const latest = [...allSessions]
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+          .slice(0, 8);
+        setLatestSessions(latest);
+
+        // Top 8 séances toutes catégories
+        const topRated = [...allSessions]
+          .sort((a, b) => {
+            if (b.rating !== a.rating) return b.rating - a.rating;
+            return b.ratingCount - a.ratingCount;
+          })
+          .slice(0, 8);
+        setTopRatedSessions(topRated);
+
+        // Top 4 par catégorie
+        const musculation = allSessions
+          .filter((s) => s.category === "Musculation")
+          .sort((a, b) => {
+            if (b.rating !== a.rating) return b.rating - a.rating;
+            return b.ratingCount - a.ratingCount;
+          })
+          .slice(0, 4);
+        setTopMusculation(musculation);
+
+        const yoga = allSessions
+          .filter((s) => s.category === "Yoga")
+          .sort((a, b) => {
+            if (b.rating !== a.rating) return b.rating - a.rating;
+            return b.ratingCount - a.ratingCount;
+          })
+          .slice(0, 4);
+        setTopYoga(yoga);
+
+        const mobilite = allSessions
+          .filter((s) => s.category === "Mobilité")
+          .sort((a, b) => {
+            if (b.rating !== a.rating) return b.rating - a.rating;
+            return b.ratingCount - a.ratingCount;
+          })
+          .slice(0, 4);
+        setTopMobilite(mobilite);
+
+        const mixte = allSessions
+          .filter((s) => s.category === "Mixte")
+          .sort((a, b) => {
+            if (b.rating !== a.rating) return b.rating - a.rating;
+            return b.ratingCount - a.ratingCount;
+          })
+          .slice(0, 4);
+        setTopMixte(mixte);
+      } catch (error) {
+        console.error("Erreur lors du chargement des séances:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSessions();
+  }, []);
+
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes} min`;
+  };
+
+  const handleSessionClick = (sessionId: string) => {
+    navigate({ to: `/session-details/$sessionId`, params: { sessionId } });
+  };
+
+  if (loading) {
+    return (
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-10 sm:pt-16 lg:pt-20 pb-10 sm:pb-16">
+        <div className="skeleton h-40 w-full mb-8"></div>
+        <div className="sessions-grid">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="skeleton h-48"></div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="mx-auto max-w-6xl px-4 sm:px-6 pt-10 sm:pt-16 lg:pt-20 pb-10 sm:pb-16">
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-10 sm:pt-16 lg:pt-20 pb-10 sm:pb-16">
       {/* Hero Section */}
-      <div className="grid lg:grid-cols-[1.1fr,0.9fr] gap-10 lg:gap-14 items-center">
-        {/* Left: Hero copy */}
+      <div className="mb-12 sm:mb-16">
         <div className="space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-neutral-900/70 backdrop-blur-md text-xs text-sky-100 px-2.5 py-1">
             <span className="inline-flex items-center justify-center rounded-full bg-sky-500/20 text-sky-300 h-4 w-4">
@@ -32,14 +130,6 @@ function HomePage() {
             <span>Sport à la maison • Simple & guidé</span>
           </div>
 
-          <div className="space-y-3">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-neutral-50">
-              Vos séances maison,
-              <span className="text-gradient-primary"> en 3 espaces clés.</span>
-            </h1>
-          </div>
-
-          {/* CTA */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 pt-1">
             <Link to="/sessions" className="btn-primary px-5 sm:px-6 py-2">
               <Plus className="w-4 h-4 stroke-[1.5] mr-2" />
@@ -50,111 +140,166 @@ function HomePage() {
               Créer un exercice
             </Link>
           </div>
-
-          {/* 3 spaces cards preview */}
-          <div className="grid sm:grid-cols-3 gap-4 sm:gap-5">
-            <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 sm:p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="h-7 w-7 rounded-full bg-sky-500/15 flex items-center justify-center">
-                  <Dumbbell className="w-3.5 h-3.5 stroke-[1.5] text-sky-400" />
-                </div>
-                <h3 className="text-sm font-medium tracking-tight text-neutral-50">
-                  Musculation
-                </h3>
-              </div>
-              <p className="text-sm text-neutral-300">
-                Force & cardio au poids du corps ou avec haltères.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 sm:p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="h-7 w-7 rounded-full bg-cyan-500/15 flex items-center justify-center">
-                  <Flower2 className="w-3.5 h-3.5 stroke-[1.5] text-cyan-300" />
-                </div>
-                <h3 className="text-sm font-medium tracking-tight text-neutral-50">
-                  Yoga
-                </h3>
-              </div>
-              <p className="text-sm text-neutral-300">
-                Flows doux ou dynamiques pour respirer et se recentrer.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 sm:p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="h-7 w-7 rounded-full bg-blue-500/15 flex items-center justify-center">
-                  <StretchHorizontal className="w-3.5 h-3.5 stroke-[1.5] text-blue-300" />
-                </div>
-                <h3 className="text-sm font-medium tracking-tight text-neutral-50">
-                  Mobilité
-                </h3>
-              </div>
-              <p className="text-sm text-neutral-300">
-                Routines courtes pour bouger librement et sans douleur.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* 3 Workout Spaces Section */}
-      <section className="mt-10 sm:mt-14 lg:mt-16">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-50">
-              Vos 3 espaces d'entraînement
-            </h2>
-            <p className="text-base text-neutral-300 max-w-xl">
-              Passez facilement de la musculation au yoga et à la mobilité.
-            </p>
+      {/* Les dernières nouveautés */}
+      {latestSessions.length > 0 && (
+        <div className="section-container">
+          <div className="flex items-center gap-3 mb-6">
+            <Sparkles className="w-6 h-6 text-sky-400" />
+            <h2 className="section-title mb-0">Les dernières nouveautés</h2>
           </div>
-          <Link to="/programmes" className="btn-secondary px-3 sm:px-4 py-1.5">
-            Voir tous les programmes
-            <ArrowRight className="w-3.5 h-3.5 stroke-[1.5] ml-1.5" />
-          </Link>
+          <p className="section-subtitle">
+            Découvrez les séances récemment ajoutées par la communauté
+          </p>
+          <div className="sessions-grid">
+            {latestSessions.map((session) => (
+              <SessionCard
+                key={session.id}
+                title={session.name}
+                duration={formatDuration(session.duration)}
+                category={session.category}
+                rating={session.rating}
+                ratingCount={session.ratingCount}
+                createdBy={session.creator?.username}
+                onClick={() => handleSessionClick(session.id)}
+              />
+            ))}
+          </div>
         </div>
+      )}
 
-        <div className="grid md:grid-cols-3 gap-4 lg:gap-5">
-          <WorkoutCard
-            title="Musculation"
-            description="Force & tonification"
-            category="musculation"
-            icon={Dumbbell}
-            sessionCount="40+ séances"
-            items={[
-              "Poids du corps",
-              "Haltères & élastiques",
-              "Formats 10–30 min",
-            ]}
-            onOpen={() => (window.location.href = "/musculation")}
-          />
-
-          <WorkoutCard
-            title="Yoga"
-            description="Calme & énergie"
-            category="yoga"
-            icon={Flower2}
-            sessionCount="25+ flows"
-            items={["Flows doux", "Séances dynamiques", "Respiration guidée"]}
-            onOpen={() => (window.location.href = "/yoga")}
-          />
-
-          <WorkoutCard
-            title="Mobilité"
-            description="Articulations & posture"
-            category="mobility"
-            icon={StretchHorizontal}
-            sessionCount="15 routines"
-            items={[
-              "Routines 5–15 min",
-              "Dos, hanches, épaules",
-              "Avant / après séance",
-            ]}
-            onOpen={() => (window.location.href = "/mobilite")}
-          />
+      {/* Les meilleures séances */}
+      {topRatedSessions.length > 0 && (
+        <div className="section-container">
+          <div className="flex items-center gap-3 mb-6">
+            <TrendingUp className="w-6 h-6 text-cyan-400" />
+            <h2 className="section-title mb-0">Les meilleures séances</h2>
+          </div>
+          <p className="section-subtitle">
+            Les séances les mieux notées toutes catégories confondues
+          </p>
+          <div className="sessions-grid">
+            {topRatedSessions.map((session) => (
+              <SessionCard
+                key={session.id}
+                title={session.name}
+                duration={formatDuration(session.duration)}
+                category={session.category}
+                rating={session.rating}
+                ratingCount={session.ratingCount}
+                createdBy={session.creator?.username}
+                onClick={() => handleSessionClick(session.id)}
+              />
+            ))}
+          </div>
         </div>
-      </section>
+      )}
+
+      {/* Top Musculation */}
+      {topMusculation.length > 0 && (
+        <div className="section-container">
+          <div className="flex items-center gap-3 mb-6">
+            <Dumbbell className="w-6 h-6 text-sky-400" />
+            <h2 className="section-title mb-0">Top Musculation</h2>
+          </div>
+          <p className="section-subtitle">
+            Les meilleures séances de musculation
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {topMusculation.map((session) => (
+              <SessionCard
+                key={session.id}
+                title={session.name}
+                duration={formatDuration(session.duration)}
+                category={session.category}
+                rating={session.rating}
+                ratingCount={session.ratingCount}
+                createdBy={session.creator?.username}
+                onClick={() => handleSessionClick(session.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Top Yoga */}
+      {topYoga.length > 0 && (
+        <div className="section-container">
+          <div className="flex items-center gap-3 mb-6">
+            <Flower2 className="w-6 h-6 text-cyan-400" />
+            <h2 className="section-title mb-0">Top Yoga</h2>
+          </div>
+          <p className="section-subtitle">Les meilleures séances de yoga</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {topYoga.map((session) => (
+              <SessionCard
+                key={session.id}
+                title={session.name}
+                duration={formatDuration(session.duration)}
+                category={session.category}
+                rating={session.rating}
+                ratingCount={session.ratingCount}
+                createdBy={session.creator?.username}
+                onClick={() => handleSessionClick(session.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Top Mobilité */}
+      {topMobilite.length > 0 && (
+        <div className="section-container">
+          <div className="flex items-center gap-3 mb-6">
+            <StretchHorizontal className="w-6 h-6 text-blue-400" />
+            <h2 className="section-title mb-0">Top Mobilité</h2>
+          </div>
+          <p className="section-subtitle">Les meilleures séances de mobilité</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {topMobilite.map((session) => (
+              <SessionCard
+                key={session.id}
+                title={session.name}
+                duration={formatDuration(session.duration)}
+                category={session.category}
+                rating={session.rating}
+                ratingCount={session.ratingCount}
+                createdBy={session.creator?.username}
+                onClick={() => handleSessionClick(session.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Top Mixte */}
+      {topMixte.length > 0 && (
+        <div className="section-container">
+          <div className="flex items-center gap-3 mb-6">
+            <Blend className="w-6 h-6 text-purple-400" />
+            <h2 className="section-title mb-0">Top Mixte</h2>
+          </div>
+          <p className="section-subtitle">
+            Les meilleures séances mixtes combinant plusieurs disciplines
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {topMixte.map((session) => (
+              <SessionCard
+                key={session.id}
+                title={session.name}
+                duration={formatDuration(session.duration)}
+                category={session.category}
+                rating={session.rating}
+                ratingCount={session.ratingCount}
+                createdBy={session.creator?.username}
+                onClick={() => handleSessionClick(session.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

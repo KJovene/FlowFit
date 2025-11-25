@@ -38,12 +38,6 @@ export function Header() {
             <span>Accueil</span>
             <span className="h-0.5 w-5 rounded-full bg-sky-400"></span>
           </Link>
-          <Link
-            to="/programmes"
-            className="text-xs sm:text-sm hover:text-neutral-50 transition-colors"
-          >
-            Programmes
-          </Link>
         </nav>
 
         {/* Actions */}

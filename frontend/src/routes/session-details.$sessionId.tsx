@@ -115,15 +115,15 @@ function SessionDetailsPage() {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "Musculation":
-        return "sky";
+        return "red";
       case "Yoga":
-        return "cyan";
-      case "Mobilité":
         return "blue";
+      case "Mobilité":
+        return "green";
       case "Mixte":
         return "purple";
       default:
-        return "sky";
+        return "red";
     }
   };
 
@@ -180,9 +180,9 @@ function SessionDetailsPage() {
               <span
                 className={cn(
                   "text-xs px-3 py-1 rounded-full",
-                  color === "sky" && "bg-sky-500/20 text-sky-300",
-                  color === "cyan" && "bg-cyan-500/20 text-cyan-300",
+                  color === "red" && "bg-red-500/20 text-red-300",
                   color === "blue" && "bg-blue-500/20 text-blue-300",
+                  color === "green" && "bg-green-500/20 text-green-300",
                   color === "purple" && "bg-purple-500/20 text-purple-300"
                 )}
               >
@@ -276,12 +276,12 @@ function SessionDetailsPage() {
               className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4"
             >
               <div className="flex items-start gap-4">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-sky-500/20 text-sky-300 text-sm font-semibold flex-shrink-0">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500/20 text-red-300 text-sm font-semibold flex-shrink-0">
                   {index + 1}
                 </div>
 
                 {ex.exercise.image && (
-                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-neutral-800 flex-shrink-0">
+                  <div className="w-30 h-30 rounded-lg overflow-hidden bg-neutral-800 flex-shrink-0">
                     <img
                       src={`http://localhost:4000${ex.exercise.image}`}
                       alt={ex.exercise.name}
@@ -300,25 +300,46 @@ function SessionDetailsPage() {
 
                   <div className="flex items-center gap-4">
                     <div>
-                      <label className="block text-xs text-neutral-400 mb-1">
+                      <label className="block text-xs text-neutral-400 mb-2">
                         Durée
                       </label>
-                      <input
-                        type="number"
-                        min="5"
-                        step="5"
-                        value={customDurations[ex.exercise.id] || ex.duration}
-                        onChange={(e) =>
-                          updateExerciseDuration(
-                            ex.exercise.id,
-                            parseInt(e.target.value) || ex.duration
-                          )
-                        }
-                        className="w-24 px-3 py-1.5 text-sm rounded-lg border border-neutral-700 bg-neutral-900 text-neutral-50 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
-                      />
-                      <span className="text-xs text-neutral-400 ml-2">
-                        secondes
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            const currentDuration =
+                              customDurations[ex.exercise.id] || ex.duration;
+                            if (currentDuration > 5) {
+                              updateExerciseDuration(
+                                ex.exercise.id,
+                                currentDuration - 5
+                              );
+                            }
+                          }}
+                          className="w-8 h-8 flex items-center justify-center rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-neutral-50 transition-colors border border-neutral-700"
+                          aria-label="Diminuer la durée"
+                        >
+                          -
+                        </button>
+                        <span className="min-w-[60px] text-center text-sm font-medium text-neutral-50">
+                          {formatDuration(
+                            customDurations[ex.exercise.id] || ex.duration
+                          )}
+                        </span>
+                        <button
+                          onClick={() => {
+                            const currentDuration =
+                              customDurations[ex.exercise.id] || ex.duration;
+                            updateExerciseDuration(
+                              ex.exercise.id,
+                              currentDuration + 5
+                            );
+                          }}
+                          className="w-8 h-8 flex items-center justify-center rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-neutral-50 transition-colors border border-neutral-700"
+                          aria-label="Augmenter la durée"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

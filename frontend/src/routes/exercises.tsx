@@ -159,13 +159,13 @@ function ExercisesPage() {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "Musculation":
-        return "sky";
+        return "red";
       case "Yoga":
-        return "cyan";
-      case "Mobilité":
         return "blue";
+      case "Mobilité":
+        return "green";
       default:
-        return "sky";
+        return "red";
     }
   };
 
@@ -209,7 +209,7 @@ function ExercisesPage() {
           className={cn(
             "px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
             filterCategory === "Musculation"
-              ? "bg-sky-500 text-neutral-950"
+              ? "bg-red-500 text-neutral-950"
               : "bg-neutral-900 text-neutral-300 hover:bg-neutral-800"
           )}
         >
@@ -220,7 +220,7 @@ function ExercisesPage() {
           className={cn(
             "px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
             filterCategory === "Yoga"
-              ? "bg-cyan-400 text-neutral-950"
+              ? "bg-blue-500 text-neutral-950"
               : "bg-neutral-900 text-neutral-300 hover:bg-neutral-800"
           )}
         >
@@ -231,7 +231,7 @@ function ExercisesPage() {
           className={cn(
             "px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
             filterCategory === "Mobilité"
-              ? "bg-blue-400 text-neutral-950"
+              ? "bg-green-500 text-neutral-950"
               : "bg-neutral-900 text-neutral-300 hover:bg-neutral-800"
           )}
         >
@@ -268,17 +268,17 @@ function ExercisesPage() {
                   <div
                     className={cn(
                       "absolute top-2 right-2 h-8 w-8 rounded-full flex items-center justify-center",
-                      color === "sky" && "bg-sky-500/20",
-                      color === "cyan" && "bg-cyan-500/20",
-                      color === "blue" && "bg-blue-500/20"
+                      color === "red" && "bg-red-500/20",
+                      color === "blue" && "bg-blue-500/20",
+                      color === "green" && "bg-green-500/20"
                     )}
                   >
                     <Icon
                       className={cn(
                         "w-4 h-4",
-                        color === "sky" && "text-sky-300",
-                        color === "cyan" && "text-cyan-300",
-                        color === "blue" && "text-blue-300"
+                        color === "red" && "text-red-300",
+                        color === "blue" && "text-blue-300",
+                        color === "green" && "text-green-300"
                       )}
                     />
                   </div>
@@ -297,9 +297,9 @@ function ExercisesPage() {
                       <span
                         className={cn(
                           "text-[0.65rem] px-2 py-0.5 rounded-full",
-                          color === "sky" && "bg-sky-500/20 text-sky-300",
-                          color === "cyan" && "bg-cyan-500/20 text-cyan-300",
-                          color === "blue" && "bg-blue-500/20 text-blue-300"
+                          color === "red" && "bg-red-500/20 text-red-300",
+                          color === "blue" && "bg-blue-500/20 text-blue-300",
+                          color === "green" && "bg-green-500/20 text-green-300"
                         )}
                       >
                         {exercise.subcategory}

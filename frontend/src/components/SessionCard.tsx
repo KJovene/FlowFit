@@ -5,7 +5,7 @@ import { User } from "lucide-react";
 interface SessionCardProps {
   title: string;
   duration: string;
-  category: "Musculation" | "Yoga" | "Mobilité";
+  category: "Musculation" | "Yoga" | "Mobilité" | "Mixte";
   equipment?: string;
   isActive?: boolean;
   onClick?: () => void;
@@ -17,21 +17,27 @@ interface SessionCardProps {
 
 const categoryColors = {
   Musculation: {
-    bg: "from-sky-500/25 via-blue-500/20 to-neutral-950",
-    border: "border-sky-500/40",
-    text: "text-sky-100",
+    bg: "from-red-500/25 via-red-500/20 to-neutral-950",
+    border: "border-red-500/40",
+    text: "text-red-100",
     badge: "bg-neutral-950/40",
   },
   Yoga: {
-    bg: "from-cyan-500/25 via-sky-500/20 to-neutral-950",
-    border: "border-cyan-500/40",
-    text: "text-cyan-100",
+    bg: "from-blue-500/25 via-blue-500/20 to-neutral-950",
+    border: "border-blue-500/40",
+    text: "text-blue-100",
     badge: "bg-neutral-950/40",
   },
   Mobilité: {
-    bg: "from-blue-500/25 via-sky-500/20 to-neutral-950",
-    border: "border-blue-500/40",
-    text: "text-blue-100",
+    bg: "from-green-500/25 via-green-500/20 to-neutral-950",
+    border: "border-green-500/40",
+    text: "text-green-100",
+    badge: "bg-neutral-950/40",
+  },
+  Mixte: {
+    bg: "from-purple-500/25 via-pink-500/20 to-neutral-950",
+    border: "border-purple-500/40",
+    text: "text-purple-100",
     badge: "bg-neutral-950/40",
   },
 };

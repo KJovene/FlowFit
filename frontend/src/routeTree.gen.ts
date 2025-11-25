@@ -9,25 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as YogaRouteImport } from './routes/yoga'
 import { Route as SessionsRouteImport } from './routes/sessions'
 import { Route as RegisterRouteImport } from './routes/register'
-import { Route as ProgrammesRouteImport } from './routes/programmes'
 import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as MusculationRouteImport } from './routes/musculation'
-import { Route as MobiliteRouteImport } from './routes/mobilite'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ExercisesRouteImport } from './routes/exercises'
-import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SessionPlayerSessionIdRouteImport } from './routes/session-player.$sessionId'
 import { Route as SessionDetailsSessionIdRouteImport } from './routes/session-details.$sessionId'
 
-const YogaRoute = YogaRouteImport.update({
-  id: '/yoga',
-  path: '/yoga',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SessionsRoute = SessionsRouteImport.update({
   id: '/sessions',
   path: '/sessions',
@@ -38,24 +28,9 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProgrammesRoute = ProgrammesRouteImport.update({
-  id: '/programmes',
-  path: '/programmes',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MusculationRoute = MusculationRouteImport.update({
-  id: '/musculation',
-  path: '/musculation',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MobiliteRoute = MobiliteRouteImport.update({
-  id: '/mobilite',
-  path: '/mobilite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -66,11 +41,6 @@ const LoginRoute = LoginRouteImport.update({
 const ExercisesRoute = ExercisesRouteImport.update({
   id: '/exercises',
   path: '/exercises',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CalendarRoute = CalendarRouteImport.update({
-  id: '/calendar',
-  path: '/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -91,47 +61,32 @@ const SessionDetailsSessionIdRoute = SessionDetailsSessionIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/calendar': typeof CalendarRoute
   '/exercises': typeof ExercisesRoute
   '/login': typeof LoginRoute
-  '/mobilite': typeof MobiliteRoute
-  '/musculation': typeof MusculationRoute
   '/profile': typeof ProfileRoute
-  '/programmes': typeof ProgrammesRoute
   '/register': typeof RegisterRoute
   '/sessions': typeof SessionsRoute
-  '/yoga': typeof YogaRoute
   '/session-details/$sessionId': typeof SessionDetailsSessionIdRoute
   '/session-player/$sessionId': typeof SessionPlayerSessionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/calendar': typeof CalendarRoute
   '/exercises': typeof ExercisesRoute
   '/login': typeof LoginRoute
-  '/mobilite': typeof MobiliteRoute
-  '/musculation': typeof MusculationRoute
   '/profile': typeof ProfileRoute
-  '/programmes': typeof ProgrammesRoute
   '/register': typeof RegisterRoute
   '/sessions': typeof SessionsRoute
-  '/yoga': typeof YogaRoute
   '/session-details/$sessionId': typeof SessionDetailsSessionIdRoute
   '/session-player/$sessionId': typeof SessionPlayerSessionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/calendar': typeof CalendarRoute
   '/exercises': typeof ExercisesRoute
   '/login': typeof LoginRoute
-  '/mobilite': typeof MobiliteRoute
-  '/musculation': typeof MusculationRoute
   '/profile': typeof ProfileRoute
-  '/programmes': typeof ProgrammesRoute
   '/register': typeof RegisterRoute
   '/sessions': typeof SessionsRoute
-  '/yoga': typeof YogaRoute
   '/session-details/$sessionId': typeof SessionDetailsSessionIdRoute
   '/session-player/$sessionId': typeof SessionPlayerSessionIdRoute
 }
@@ -139,75 +94,48 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/calendar'
     | '/exercises'
     | '/login'
-    | '/mobilite'
-    | '/musculation'
     | '/profile'
-    | '/programmes'
     | '/register'
     | '/sessions'
-    | '/yoga'
     | '/session-details/$sessionId'
     | '/session-player/$sessionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/calendar'
     | '/exercises'
     | '/login'
-    | '/mobilite'
-    | '/musculation'
     | '/profile'
-    | '/programmes'
     | '/register'
     | '/sessions'
-    | '/yoga'
     | '/session-details/$sessionId'
     | '/session-player/$sessionId'
   id:
     | '__root__'
     | '/'
-    | '/calendar'
     | '/exercises'
     | '/login'
-    | '/mobilite'
-    | '/musculation'
     | '/profile'
-    | '/programmes'
     | '/register'
     | '/sessions'
-    | '/yoga'
     | '/session-details/$sessionId'
     | '/session-player/$sessionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CalendarRoute: typeof CalendarRoute
   ExercisesRoute: typeof ExercisesRoute
   LoginRoute: typeof LoginRoute
-  MobiliteRoute: typeof MobiliteRoute
-  MusculationRoute: typeof MusculationRoute
   ProfileRoute: typeof ProfileRoute
-  ProgrammesRoute: typeof ProgrammesRoute
   RegisterRoute: typeof RegisterRoute
   SessionsRoute: typeof SessionsRoute
-  YogaRoute: typeof YogaRoute
   SessionDetailsSessionIdRoute: typeof SessionDetailsSessionIdRoute
   SessionPlayerSessionIdRoute: typeof SessionPlayerSessionIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/yoga': {
-      id: '/yoga'
-      path: '/yoga'
-      fullPath: '/yoga'
-      preLoaderRoute: typeof YogaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/sessions': {
       id: '/sessions'
       path: '/sessions'
@@ -222,32 +150,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/programmes': {
-      id: '/programmes'
-      path: '/programmes'
-      fullPath: '/programmes'
-      preLoaderRoute: typeof ProgrammesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/profile': {
       id: '/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/musculation': {
-      id: '/musculation'
-      path: '/musculation'
-      fullPath: '/musculation'
-      preLoaderRoute: typeof MusculationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mobilite': {
-      id: '/mobilite'
-      path: '/mobilite'
-      fullPath: '/mobilite'
-      preLoaderRoute: typeof MobiliteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -262,13 +169,6 @@ declare module '@tanstack/react-router' {
       path: '/exercises'
       fullPath: '/exercises'
       preLoaderRoute: typeof ExercisesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/calendar': {
-      id: '/calendar'
-      path: '/calendar'
-      fullPath: '/calendar'
-      preLoaderRoute: typeof CalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -297,16 +197,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CalendarRoute: CalendarRoute,
   ExercisesRoute: ExercisesRoute,
   LoginRoute: LoginRoute,
-  MobiliteRoute: MobiliteRoute,
-  MusculationRoute: MusculationRoute,
   ProfileRoute: ProfileRoute,
-  ProgrammesRoute: ProgrammesRoute,
   RegisterRoute: RegisterRoute,
   SessionsRoute: SessionsRoute,
-  YogaRoute: YogaRoute,
   SessionDetailsSessionIdRoute: SessionDetailsSessionIdRoute,
   SessionPlayerSessionIdRoute: SessionPlayerSessionIdRoute,
 }

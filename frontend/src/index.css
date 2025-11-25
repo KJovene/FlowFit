@@ -124,6 +124,45 @@ body {
   animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Section styles */
+.section-title {
+  @apply text-2xl sm:text-3xl font-bold tracking-tight text-neutral-50 mb-6;
+}
+
+.section-subtitle {
+  @apply text-sm sm:text-base text-neutral-400 mb-8;
+}
+
+.section-container {
+  @apply mb-12 sm:mb-16;
+}
+
+.sessions-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+}
+
+/* Category badge colors */
+.category-badge-musculation {
+  @apply bg-sky-500/20 text-sky-300 border border-sky-500/30;
+}
+
+.category-badge-yoga {
+  @apply bg-cyan-500/20 text-cyan-300 border border-cyan-500/30;
+}
+
+.category-badge-mobilite {
+  @apply bg-blue-500/20 text-blue-300 border border-blue-500/30;
+}
+
+.category-badge-mixte {
+  @apply bg-purple-500/20 text-purple-300 border border-purple-500/30;
+}
+
+/* Loading skeleton */
+.skeleton {
+  @apply animate-pulse bg-neutral-800/50 rounded-lg;
+}
+
 /* Mobile optimizations */
 @media (max-width: 640px) {
   .mobile-bottom-nav {
