@@ -204,7 +204,7 @@ function SessionPlayerPage() {
   return (
     <section className="h-screen flex flex-col bg-gradient-to-b from-neutral-950 to-neutral-900 relative overflow-hidden -top-15">
       {/* Header avec bouton quitter */}
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-19 right-4 z-10">
         <button
           onClick={handleExit}
           className="p-2.5 rounded-full bg-neutral-800/80 backdrop-blur-sm border border-neutral-700 hover:bg-neutral-700 text-neutral-300 hover:text-neutral-50 transition-all"
