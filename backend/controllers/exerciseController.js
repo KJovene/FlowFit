@@ -1,4 +1,4 @@
-import { Exercise } from "../models/Exercise.js";
+import Exercise from "../models/Exercise.js";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
@@ -8,41 +8,39 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Créer un exercice
 export const createExercise = async (req, res) => {
   try {
-    const { name, description, category, subcategory, type } = req.body;
+    const { name, description, category, subcategory } = req.body;
 
     // Vérifications
-    if (!name || !description || !category || !subcategory || !type) {
+    if (!name || !description || !category || !subcategory) {
       return res.status(400).json({
         success: false,
-        message: "Please fill all required fields",
+        message: "Veuillez remplir tous les champs requis",
       });
     }
 
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: "Please upload an image",
+        message: "Veuillez télécharger une image",
       });
     }
 
-    // Créer l'exercice
-    const exercise = new Exercise({
+    // Créer l'exercice avec Sequelize
+    const exercise = await Exercise.create({
       name,
       description,
       category,
       subcategory,
-      type,
       image: `/uploads/exercises/${req.file.filename}`,
     });
 
-    await exercise.save();
-
     res.status(201).json({
       success: true,
-      message: "Exercise created successfully",
-      exercise,
+      message: "Exercice créé avec succès",
+      data: exercise,
     });
   } catch (error) {
+    console.error("Erreur création exercice:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -53,14 +51,22 @@ export const createExercise = async (req, res) => {
 // Récupérer tous les exercices
 export const getAllExercises = async (req, res) => {
   try {
-    const exercises = await Exercise.find().sort({ createdAt: -1 });
+    const { category } = req.query;
+
+    const whereClause = category ? { category } : {};
+
+    const exercises = await Exercise.findAll({
+      where: whereClause,
+      order: [["createdAt", "DESC"]],
+    });
 
     res.status(200).json({
       success: true,
       count: exercises.length,
-      exercises,
+      data: exercises,
     });
   } catch (error) {
+    console.error("Erreur récupération exercices:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -73,15 +79,19 @@ export const getExercisesByCategory = async (req, res) => {
   try {
     const { category } = req.params;
 
-    const exercises = await Exercise.find({ category }).sort({ createdAt: -1 });
+    const exercises = await Exercise.findAll({
+      where: { category },
+      order: [["createdAt", "DESC"]],
+    });
 
     res.status(200).json({
       success: true,
       category,
       count: exercises.length,
-      exercises,
+      data: exercises,
     });
   } catch (error) {
+    console.error("Erreur récupération par catégorie:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -94,19 +104,23 @@ export const getExercisesBySubcategory = async (req, res) => {
   try {
     const { category, subcategory } = req.params;
 
-    const exercises = await Exercise.find({
-      category,
-      subcategory,
-    }).sort({ createdAt: -1 });
+    const exercises = await Exercise.findAll({
+      where: {
+        category,
+        subcategory,
+      },
+      order: [["createdAt", "DESC"]],
+    });
 
     res.status(200).json({
       success: true,
       category,
       subcategory,
       count: exercises.length,
-      exercises,
+      data: exercises,
     });
   } catch (error) {
+    console.error("Erreur récupération par sous-catégorie:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -119,20 +133,21 @@ export const getExerciseById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const exercise = await Exercise.findById(id);
+    const exercise = await Exercise.findByPk(id);
 
     if (!exercise) {
       return res.status(404).json({
         success: false,
-        message: "Exercise not found",
+        message: "Exercice non trouvé",
       });
     }
 
     res.status(200).json({
       success: true,
-      exercise,
+      data: exercise,
     });
   } catch (error) {
+    console.error("Erreur récupération exercice:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -144,14 +159,14 @@ export const getExerciseById = async (req, res) => {
 export const updateExercise = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, category, subcategory, type } = req.body;
+    const { name, description, category, subcategory } = req.body;
 
-    let exercise = await Exercise.findById(id);
+    let exercise = await Exercise.findByPk(id);
 
     if (!exercise) {
       return res.status(404).json({
         success: false,
-        message: "Exercise not found",
+        message: "Exercice non trouvé",
       });
     }
 
@@ -170,21 +185,22 @@ export const updateExercise = async (req, res) => {
       exercise.image = `/uploads/exercises/${req.file.filename}`;
     }
 
-    // Mettre à jour les champs
-    if (name) exercise.name = name;
-    if (description) exercise.description = description;
-    if (category) exercise.category = category;
-    if (subcategory) exercise.subcategory = subcategory;
-    if (type) exercise.type = type;
-
-    await exercise.save();
+    // Mettre à jour les champs avec Sequelize
+    await exercise.update({
+      name: name || exercise.name,
+      description: description || exercise.description,
+      category: category || exercise.category,
+      subcategory: subcategory || exercise.subcategory,
+      image: exercise.image,
+    });
 
     res.status(200).json({
       success: true,
-      message: "Exercise updated successfully",
-      exercise,
+      message: "Exercice mis à jour avec succès",
+      data: exercise,
     });
   } catch (error) {
+    console.error("Erreur mise à jour exercice:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -197,12 +213,12 @@ export const deleteExercise = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const exercise = await Exercise.findById(id);
+    const exercise = await Exercise.findByPk(id);
 
     if (!exercise) {
       return res.status(404).json({
         success: false,
-        message: "Exercise not found",
+        message: "Exercice non trouvé",
       });
     }
 
@@ -216,13 +232,14 @@ export const deleteExercise = async (req, res) => {
       fs.unlinkSync(imagePath);
     }
 
-    await Exercise.findByIdAndDelete(id);
+    await exercise.destroy();
 
     res.status(200).json({
       success: true,
-      message: "Exercise deleted successfully",
+      message: "Exercice supprimé avec succès",
     });
   } catch (error) {
+    console.error("Erreur suppression exercice:", error);
     res.status(500).json({
       success: false,
       message: error.message,

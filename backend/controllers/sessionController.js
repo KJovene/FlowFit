@@ -1,0 +1,324 @@
+import Session from "../models/Session.js";
+import SessionExercise from "../models/SessionExercise.js";
+import Exercise from "../models/Exercise.js";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Créer une séance
+export const createSession = async (req, res) => {
+  try {
+    const { name, description, category, difficulty, restTime, exercises } =
+      req.body;
+
+    console.log("📨 Requête création séance reçue");
+    console.log("📦 Body:", {
+      name,
+      category,
+      difficulty,
+      restTime,
+      exercisesCount: exercises?.length,
+    });
+
+    // Vérifications
+    if (!name || !description || !category || !difficulty || !restTime) {
+      return res.status(400).json({
+        success: false,
+        message: "Veuillez remplir tous les champs requis",
+      });
+    }
+
+    if (!exercises || exercises.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Veuillez ajouter au moins un exercice",
+      });
+    }
+
+    // Calculer la durée totale automatiquement (durée des exercices + temps de repos)
+    const totalDuration =
+      exercises.reduce((total, ex) => {
+        return total + parseInt(ex.duration);
+      }, 0) +
+      (exercises.length - 1) * parseInt(restTime);
+
+    // Créer la séance
+    const session = await Session.create({
+      name,
+      description,
+      category,
+      duration: totalDuration,
+      difficulty,
+      restTime: parseInt(restTime),
+      image: req.file ? `/uploads/sessions/${req.file.filename}` : null,
+    });
+
+    // Ajouter les exercices à la séance
+    for (let i = 0; i < exercises.length; i++) {
+      const ex = exercises[i];
+      await SessionExercise.create({
+        sessionId: session.id,
+        exerciseId: ex.exerciseId,
+        order: ex.order || i + 1,
+        duration: parseInt(ex.duration),
+      });
+    }
+
+    console.log("✅ Séance créée:", session.id);
+
+    res.status(201).json({
+      success: true,
+      message: "Séance créée avec succès",
+      data: session,
+    });
+  } catch (error) {
+    console.error("💥 Erreur création séance:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer toutes les séances
+export const getAllSessions = async (req, res) => {
+  try {
+    const { category } = req.query;
+
+    const whereClause = category && category !== "all" ? { category } : {};
+
+    const sessions = await Session.findAll({
+      where: whereClause,
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: Exercise,
+          as: "exercises",
+          through: {
+            attributes: ["order", "duration"],
+          },
+        },
+      ],
+    });
+
+    // Formater les données pour le frontend
+    const formattedSessions = sessions.map((session) => {
+      const sessionData = session.toJSON();
+      return {
+        ...sessionData,
+        exercises: sessionData.exercises
+          ? sessionData.exercises.map((exercise) => ({
+              exercise: {
+                id: exercise.id,
+                name: exercise.name,
+                description: exercise.description,
+                category: exercise.category,
+                subcategory: exercise.subcategory,
+                image: exercise.image,
+              },
+              order: exercise.SessionExercise.order,
+              duration: exercise.SessionExercise.duration,
+            }))
+          : [],
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      count: formattedSessions.length,
+      data: formattedSessions,
+    });
+  } catch (error) {
+    console.error("💥 Erreur récupération séances:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer une séance par ID avec détails
+export const getSessionById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const session = await Session.findByPk(id, {
+      include: [
+        {
+          model: Exercise,
+          as: "exercises",
+          through: {
+            attributes: ["order", "duration"],
+          },
+        },
+      ],
+    });
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Séance non trouvée",
+      });
+    }
+
+    // Formater les données pour le frontend
+    const sessionData = session.toJSON();
+    const formattedSession = {
+      ...sessionData,
+      exercises: sessionData.exercises
+        ? sessionData.exercises
+            .map((exercise) => ({
+              exercise: {
+                id: exercise.id,
+                name: exercise.name,
+                description: exercise.description,
+                category: exercise.category,
+                subcategory: exercise.subcategory,
+                image: exercise.image,
+              },
+              order: exercise.SessionExercise.order,
+              duration: exercise.SessionExercise.duration,
+            }))
+            .sort((a, b) => a.order - b.order)
+        : [],
+    };
+
+    res.status(200).json({
+      success: true,
+      data: formattedSession,
+    });
+  } catch (error) {
+    console.error("💥 Erreur récupération séance:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Mettre à jour une séance
+export const updateSession = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, category, difficulty, restTime, exercises } =
+      req.body;
+
+    let session = await Session.findByPk(id);
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Séance non trouvée",
+      });
+    }
+
+    // Mettre à jour l'image si nouvelle
+    if (req.file) {
+      if (session.image) {
+        const oldImagePath = path.join(
+          __dirname,
+          "..",
+          session.image.replace(/^\//, "")
+        );
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+      session.image = `/uploads/sessions/${req.file.filename}`;
+    }
+
+    // Calculer la nouvelle durée si exercices fournis
+    let totalDuration = session.duration;
+    const sessionRestTime = restTime ? parseInt(restTime) : session.restTime;
+    if (exercises && exercises.length > 0) {
+      totalDuration =
+        exercises.reduce((total, ex) => {
+          return total + parseInt(ex.duration);
+        }, 0) +
+        (exercises.length - 1) * sessionRestTime;
+    }
+
+    // Mettre à jour les champs
+    await session.update({
+      name: name || session.name,
+      description: description || session.description,
+      category: category || session.category,
+      duration: totalDuration,
+      difficulty: difficulty || session.difficulty,
+      restTime: sessionRestTime,
+      image: session.image,
+    });
+
+    // Mettre à jour les exercices si fournis
+    if (exercises && exercises.length > 0) {
+      // Supprimer les anciens exercices
+      await SessionExercise.destroy({ where: { sessionId: id } });
+
+      // Ajouter les nouveaux
+      for (let i = 0; i < exercises.length; i++) {
+        const ex = exercises[i];
+        await SessionExercise.create({
+          sessionId: session.id,
+          exerciseId: ex.exerciseId,
+          order: ex.order || i + 1,
+          duration: parseInt(ex.duration),
+        });
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Séance mise à jour avec succès",
+      data: session,
+    });
+  } catch (error) {
+    console.error("💥 Erreur mise à jour séance:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Supprimer une séance
+export const deleteSession = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const session = await Session.findByPk(id);
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Séance non trouvée",
+      });
+    }
+
+    // Supprimer l'image si elle existe
+    if (session.image) {
+      const imagePath = path.join(
+        __dirname,
+        "..",
+        session.image.replace(/^\//, "")
+      );
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+
+    await session.destroy();
+
+    res.status(200).json({
+      success: true,
+      message: "Séance supprimée avec succès",
+    });
+  } catch (error) {
+    console.error("💥 Erreur suppression séance:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
