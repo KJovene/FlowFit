@@ -19,6 +19,13 @@ export interface Session {
   image?: string;
   exercises?: SessionExercise[];
   createdAt: string;
+  rating: number; // note moyenne sur 5
+  ratingCount: number; // nombre de notes
+  createdBy?: string;
+  creator?: {
+    id: string;
+    username: string;
+  };
 }
 
 export interface CreateSessionData {
@@ -104,5 +111,35 @@ export const sessionService = {
         Authorization: `Bearer ${token}`,
       },
     });
+  },
+
+  async rate(
+    id: string,
+    rating: number
+  ): Promise<{ rating: number; ratingCount: number; userRating: number }> {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/sessions/${id}/rate`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ rating }),
+    });
+
+    const data = await response.json();
+    return data.data;
+  },
+
+  async getUserRating(id: string): Promise<number | null> {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/sessions/${id}/user-rating`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    return data.data.userRating;
   },
 };

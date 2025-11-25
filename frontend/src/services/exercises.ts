@@ -8,6 +8,11 @@ export interface Exercise {
   subcategory: "Dos" | "Haut du corps" | "Bassin" | "Bas de corps";
   image: string;
   createdAt: string;
+  createdBy?: string;
+  creator?: {
+    id: string;
+    username: string;
+  };
 }
 
 export const exerciseService = {

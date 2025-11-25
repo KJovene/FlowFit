@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Globe2, Menu, X, User, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
+import Logo from "../assets/logo.png";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,9 +19,7 @@ export function Header() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-full bg-gradient-to-br from-sky-500 via-blue-500 to-slate-900 flex items-center justify-center glow-sky">
-            <span className="text-xs font-semibold tracking-tight text-white">
-              FF
-            </span>
+            <img className="rounded-full" src={Logo} alt="Logo" />
           </div>
           <span className="text-base sm:text-lg font-semibold tracking-tight text-neutral-50">
             FlowFit

@@ -29,6 +29,14 @@ const Exercise = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    createdBy: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: "Users",
+        key: "id",
+      },
+    },
   },
   {
     timestamps: true,

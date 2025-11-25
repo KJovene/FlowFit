@@ -39,6 +39,28 @@ const Session = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true, // optionnel, peut utiliser l'image du premier exercice
     },
+    rating: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+        max: 5,
+      },
+    },
+    ratingCount: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    createdBy: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: "Users",
+        key: "id",
+      },
+    },
   },
   {
     timestamps: true,

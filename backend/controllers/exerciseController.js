@@ -1,4 +1,5 @@
 import Exercise from "../models/Exercise.js";
+import User from "../models/User.js";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
@@ -32,6 +33,7 @@ export const createExercise = async (req, res) => {
       category,
       subcategory,
       image: `/uploads/exercises/${req.file.filename}`,
+      createdBy: req.user?.id || null,
     });
 
     res.status(201).json({
@@ -58,6 +60,13 @@ export const getAllExercises = async (req, res) => {
     const exercises = await Exercise.findAll({
       where: whereClause,
       order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username"],
+        },
+      ],
     });
 
     res.status(200).json({
@@ -82,6 +91,13 @@ export const getExercisesByCategory = async (req, res) => {
     const exercises = await Exercise.findAll({
       where: { category },
       order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username"],
+        },
+      ],
     });
 
     res.status(200).json({
@@ -110,6 +126,13 @@ export const getExercisesBySubcategory = async (req, res) => {
         subcategory,
       },
       order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username"],
+        },
+      ],
     });
 
     res.status(200).json({
@@ -133,7 +156,15 @@ export const getExerciseById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const exercise = await Exercise.findByPk(id);
+    const exercise = await Exercise.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username"],
+        },
+      ],
+    });
 
     if (!exercise) {
       return res.status(404).json({

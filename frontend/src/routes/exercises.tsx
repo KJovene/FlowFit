@@ -10,6 +10,7 @@ import {
   Dumbbell,
   Flower2,
   StretchHorizontal,
+  User as UserIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -291,7 +292,7 @@ function ExercisesPage() {
                     {exercise.description}
                   </p>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex gap-2">
                       <span
                         className={cn(
@@ -304,7 +305,16 @@ function ExercisesPage() {
                         {exercise.subcategory}
                       </span>
                     </div>
+                    {exercise.creator?.username && (
+                      <div className="flex items-center gap-1 text-[0.65rem] text-neutral-400">
+                        <UserIcon className="w-3 h-3" />
+                        <span>{exercise.creator.username}</span>
+                      </div>
+                    )}
+                  </div>
 
+                  <div className="flex items-center justify-between">
+                    <div></div>
                     <div className="flex gap-1">
                       <button
                         onClick={() => handleOpenModal(exercise)}

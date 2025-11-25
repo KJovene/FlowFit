@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import { StarRating } from "./StarRating";
+import { User } from "lucide-react";
 
 interface SessionCardProps {
   title: string;
@@ -8,6 +10,9 @@ interface SessionCardProps {
   isActive?: boolean;
   onClick?: () => void;
   className?: string;
+  rating?: number;
+  ratingCount?: number;
+  createdBy?: string;
 }
 
 const categoryColors = {
@@ -39,6 +44,9 @@ export function SessionCard({
   isActive,
   onClick,
   className,
+  rating = 0,
+  ratingCount = 0,
+  createdBy,
 }: SessionCardProps) {
   const colors = categoryColors[category];
 
@@ -68,7 +76,19 @@ export function SessionCard({
       <p className="text-sm font-medium tracking-tight text-neutral-50 mb-1.5">
         {title}
       </p>
-      {equipment && <p className="text-xs text-neutral-300">{equipment}</p>}
+      {equipment && (
+        <p className="text-xs text-neutral-300 mb-2">{equipment}</p>
+      )}
+
+      <div className="flex items-center justify-between gap-2 mt-2">
+        <StarRating rating={rating} ratingCount={ratingCount} size="sm" />
+        {createdBy && (
+          <div className="flex items-center gap-1 text-[0.65rem] text-neutral-400">
+            <User className="w-3 h-3" />
+            <span>{createdBy}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

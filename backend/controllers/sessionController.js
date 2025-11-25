@@ -1,6 +1,8 @@
 import Session from "../models/Session.js";
 import SessionExercise from "../models/SessionExercise.js";
 import Exercise from "../models/Exercise.js";
+import User from "../models/User.js";
+import SessionRating from "../models/SessionRating.js";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
@@ -53,6 +55,7 @@ export const createSession = async (req, res) => {
       difficulty,
       restTime: parseInt(restTime),
       image: req.file ? `/uploads/sessions/${req.file.filename}` : null,
+      createdBy: req.user?.id || null,
     });
 
     // Ajouter les exercices à la séance
@@ -100,6 +103,11 @@ export const getAllSessions = async (req, res) => {
             attributes: ["order", "duration"],
           },
         },
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username"],
+        },
       ],
     });
 
@@ -108,6 +116,7 @@ export const getAllSessions = async (req, res) => {
       const sessionData = session.toJSON();
       return {
         ...sessionData,
+        createdBy: sessionData.creator?.username || "Inconnu",
         exercises: sessionData.exercises
           ? sessionData.exercises.map((exercise) => ({
               exercise: {
@@ -153,6 +162,11 @@ export const getSessionById = async (req, res) => {
             attributes: ["order", "duration"],
           },
         },
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username"],
+        },
       ],
     });
 
@@ -167,6 +181,7 @@ export const getSessionById = async (req, res) => {
     const sessionData = session.toJSON();
     const formattedSession = {
       ...sessionData,
+      createdBy: sessionData.creator?.username || "Inconnu",
       exercises: sessionData.exercises
         ? sessionData.exercises
             .map((exercise) => ({
@@ -316,6 +331,110 @@ export const deleteSession = async (req, res) => {
     });
   } catch (error) {
     console.error("💥 Erreur suppression séance:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Noter une séance
+export const rateSession = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rating } = req.body;
+    const userId = req.user.id;
+
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({
+        success: false,
+        message: "La note doit être comprise entre 1 et 5",
+      });
+    }
+
+    const session = await Session.findByPk(id);
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Séance non trouvée",
+      });
+    }
+
+    // Vérifier si l'utilisateur a déjà noté cette séance
+    let existingRating = await SessionRating.findOne({
+      where: {
+        userId,
+        sessionId: id,
+      },
+    });
+
+    if (existingRating) {
+      // Mettre à jour la note existante
+      await existingRating.update({ rating: parseInt(rating) });
+    } else {
+      // Créer une nouvelle note
+      await SessionRating.create({
+        userId,
+        sessionId: id,
+        rating: parseInt(rating),
+      });
+    }
+
+    // Recalculer la moyenne en récupérant toutes les notes
+    const allRatings = await SessionRating.findAll({
+      where: { sessionId: id },
+    });
+
+    const totalRatings = allRatings.length;
+    const sumRatings = allRatings.reduce((sum, r) => sum + r.rating, 0);
+    const averageRating = totalRatings > 0 ? sumRatings / totalRatings : 0;
+
+    // Mettre à jour la session avec la nouvelle moyenne
+    await session.update({
+      rating: averageRating,
+      ratingCount: totalRatings,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: existingRating
+        ? "Note mise à jour avec succès"
+        : "Note enregistrée avec succès",
+      data: {
+        rating: averageRating,
+        ratingCount: totalRatings,
+        userRating: parseInt(rating),
+      },
+    });
+  } catch (error) {
+    console.error("💥 Erreur notation séance:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer la note de l'utilisateur pour une séance
+export const getUserRating = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const rating = await SessionRating.findOne({
+      where: {
+        userId,
+        sessionId: id,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: rating ? { userRating: rating.rating } : { userRating: null },
+    });
+  } catch (error) {
+    console.error("💥 Erreur récupération note utilisateur:", error);
     res.status(500).json({
       success: false,
       message: error.message,

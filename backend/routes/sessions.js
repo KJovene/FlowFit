@@ -5,16 +5,21 @@ import {
   getSessionById,
   updateSession,
   deleteSession,
+  rateSession,
+  getUserRating,
 } from "../controllers/sessionController.js";
 import { upload } from "../config/multer.js";
+import { protect } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Routes
-router.post("/", upload.single("image"), createSession);
-router.get("/", getAllSessions);
-router.get("/:id", getSessionById);
-router.put("/:id", upload.single("image"), updateSession);
-router.delete("/:id", deleteSession);
+// Routes - toutes protégées par l'authentification
+router.post("/", protect, upload.single("image"), createSession);
+router.get("/", protect, getAllSessions);
+router.get("/:id", protect, getSessionById);
+router.get("/:id/user-rating", protect, getUserRating);
+router.put("/:id", protect, upload.single("image"), updateSession);
+router.delete("/:id", protect, deleteSession);
+router.post("/:id/rate", protect, rateSession);
 
 export default router;

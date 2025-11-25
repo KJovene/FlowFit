@@ -3,8 +3,17 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { sessionService } from "@/services/sessions";
 import type { Session } from "@/services/sessions";
-import { Play, Clock, Target, ArrowLeft, Settings } from "lucide-react";
+import {
+  Play,
+  Clock,
+  Target,
+  ArrowLeft,
+  Settings,
+  Star,
+  User,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { StarRating } from "@/components/StarRating";
 
 export const Route = createFileRoute("/session-details/$sessionId")({
   component: SessionDetailsPage,
@@ -20,6 +29,9 @@ function SessionDetailsPage() {
     [key: string]: number;
   }>({});
   const [customRestTime, setCustomRestTime] = useState<number>(10);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -42,6 +54,12 @@ function SessionDetailsPage() {
         durations[ex.exercise.id] = ex.duration;
       });
       setCustomDurations(durations);
+
+      // Charger la note de l'utilisateur
+      const userRating = await sessionService.getUserRating(sessionId);
+      if (userRating) {
+        setSelectedRating(userRating);
+      }
     } catch (err) {
       console.error("Erreur chargement séance:", err);
     } finally {
@@ -66,16 +84,6 @@ function SessionDetailsPage() {
   };
 
   const handleStartSession = () => {
-    // Préparer les données de la séance avec les paramètres personnalisés
-    const sessionData = {
-      ...session,
-      customRestTime,
-      exercises: session?.exercises?.map((ex) => ({
-        ...ex,
-        duration: customDurations[ex.exercise.id] || ex.duration,
-      })),
-    };
-
     navigate({
       to: "/session-player/$sessionId",
       params: { sessionId },
@@ -84,6 +92,24 @@ function SessionDetailsPage() {
         durations: JSON.stringify(customDurations),
       },
     });
+  };
+
+  const handleRateSession = async (rating: number) => {
+    if (!session) return;
+
+    try {
+      setRatingSubmitting(true);
+      await sessionService.rate(session.id, rating);
+
+      // Recharger la séance pour obtenir la nouvelle note
+      await loadSession();
+      setShowRatingModal(false);
+    } catch (err) {
+      console.error("Erreur lors de la notation:", err);
+      alert("Une erreur est survenue lors de la notation");
+    } finally {
+      setRatingSubmitting(false);
+    }
   };
 
   const getCategoryColor = (category: string) => {
@@ -173,6 +199,36 @@ function SessionDetailsPage() {
                 <Clock className="w-4 h-4" />
                 <span>{formatDuration(calculateTotalDuration())}</span>
               </div>
+            </div>
+
+            {/* Affichage de la note et bouton pour noter */}
+            <div className="mt-4 flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <StarRating
+                  rating={session.rating || 0}
+                  ratingCount={session.ratingCount || 0}
+                  size="md"
+                />
+              </div>
+              <button
+                onClick={() => setShowRatingModal(true)}
+                className="text-sm text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-1"
+              >
+                <Star className="w-4 h-4" />
+                {selectedRating > 0 ? "Modifier ma note" : "Noter cette séance"}
+              </button>
+              {selectedRating > 0 && (
+                <span className="text-xs text-neutral-500">
+                  (Vous avez donné {selectedRating} étoile
+                  {selectedRating > 1 ? "s" : ""})
+                </span>
+              )}
+              {session.createdBy && (
+                <div className="flex items-center gap-1 text-sm text-neutral-400">
+                  <User className="w-4 h-4" />
+                  <span>Par {session.createdBy}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -282,6 +338,59 @@ function SessionDetailsPage() {
           Lancer la séance
         </button>
       </div>
+
+      {/* Modal de notation */}
+      {showRatingModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-neutral-950 border border-neutral-800 rounded-3xl p-6 sm:p-8 max-w-md w-full">
+            <h2 className="text-xl font-semibold text-neutral-50 mb-4">
+              Noter cette séance
+            </h2>
+
+            <p className="text-sm text-neutral-400 mb-6">
+              Votre avis aide les autres utilisateurs à découvrir les meilleures
+              séances
+            </p>
+
+            <div className="flex justify-center mb-6">
+              <StarRating
+                rating={selectedRating}
+                size="lg"
+                interactive={true}
+                showCount={false}
+                onRate={(rating) => setSelectedRating(rating)}
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={async () => {
+                  setShowRatingModal(false);
+                  // Recharger la note de l'utilisateur au cas où il annule
+                  const userRating =
+                    await sessionService.getUserRating(sessionId);
+                  if (userRating) {
+                    setSelectedRating(userRating);
+                  }
+                }}
+                className="flex-1 btn-secondary py-2.5"
+                disabled={ratingSubmitting}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRateSession(selectedRating)}
+                disabled={selectedRating === 0 || ratingSubmitting}
+                className="flex-1 btn-primary py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {ratingSubmitting ? "..." : "Valider"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
