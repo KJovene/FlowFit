@@ -28,11 +28,6 @@ export function Header() {
 
         {/* Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-          <button className="hidden sm:inline-flex items-center gap-1.5 text-xs sm:text-sm text-neutral-300 hover:text-neutral-50 transition-colors">
-            <Globe2 className="w-3.5 h-3.5 stroke-[1.5]" />
-            <span>FR</span>
-          </button>
-
           {isAuthenticated ? (
             <>
               {/* User Profile Button */}
@@ -77,7 +72,6 @@ export function Header() {
               </Link>
             </>
           )}
-
           {/* Mobile menu button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

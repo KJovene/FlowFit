@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { StarRating } from "./StarRating";
-import { User } from "lucide-react";
+import { User, Heart } from "lucide-react";
 
 interface SessionCardProps {
   title: string;
@@ -13,6 +13,9 @@ interface SessionCardProps {
   rating?: number;
   ratingCount?: number;
   createdBy?: string;
+  isFavorite?: boolean;
+  onFavoriteToggle?: (e: React.MouseEvent) => void;
+  showFavoriteButton?: boolean;
 }
 
 const categoryColors = {
@@ -53,6 +56,9 @@ export function SessionCard({
   rating = 0,
   ratingCount = 0,
   createdBy,
+  isFavorite = false,
+  onFavoriteToggle,
+  showFavoriteButton = false,
 }: SessionCardProps) {
   const colors = categoryColors[category];
 
@@ -60,13 +66,29 @@ export function SessionCard({
     <div
       onClick={onClick}
       className={cn(
-        "rounded-2xl bg-gradient-to-br border p-3 cursor-pointer transition-all duration-300 hover:scale-[1.02]",
+        "rounded-2xl bg-gradient-to-br border p-3 cursor-pointer transition-all duration-300 hover:scale-[1.02] relative",
         colors.bg,
         colors.border,
         isActive && "ring-2 ring-sky-400",
         className
       )}
     >
+      {showFavoriteButton && onFavoriteToggle && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onFavoriteToggle(e);
+          }}
+          className={cn(
+            "absolute top-3 right-3 p-1.5 rounded-full transition-all duration-300 z-10",
+            isFavorite
+              ? "bg-red-500/30 text-red-400 hover:bg-red-500/40"
+              : "bg-neutral-900/50 text-neutral-400 hover:bg-neutral-800/70 hover:text-red-400"
+          )}
+        >
+          <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
+        </button>
+      )}
       <div className="flex items-center justify-between mb-1">
         <span className={cn("text-[0.7rem]", colors.text)}>{category}</span>
         <span

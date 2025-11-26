@@ -3,6 +3,7 @@ import SessionExercise from "../models/SessionExercise.js";
 import Exercise from "../models/Exercise.js";
 import User from "../models/User.js";
 import SessionRating from "../models/SessionRating.js";
+import FavoriteSession from "../models/FavoriteSession.js";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
@@ -596,6 +597,187 @@ export const getUserSessions = async (req, res) => {
     });
   } catch (error) {
     console.error("💥 Erreur récupération séances utilisateur:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Ajouter une séance aux favoris
+export const addToFavorites = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const session = await Session.findByPk(id);
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Séance non trouvée",
+      });
+    }
+
+    // Vérifier si déjà dans les favoris
+    const existingFavorite = await FavoriteSession.findOne({
+      where: {
+        userId,
+        sessionId: id,
+      },
+    });
+
+    if (existingFavorite) {
+      return res.status(400).json({
+        success: false,
+        message: "Cette séance est déjà dans vos favoris",
+      });
+    }
+
+    await FavoriteSession.create({
+      userId,
+      sessionId: id,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Séance ajoutée aux favoris",
+    });
+  } catch (error) {
+    console.error("💥 Erreur ajout favori:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Retirer une séance des favoris
+export const removeFromFavorites = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const favorite = await FavoriteSession.findOne({
+      where: {
+        userId,
+        sessionId: id,
+      },
+    });
+
+    if (!favorite) {
+      return res.status(404).json({
+        success: false,
+        message: "Cette séance n'est pas dans vos favoris",
+      });
+    }
+
+    await favorite.destroy();
+
+    res.status(200).json({
+      success: true,
+      message: "Séance retirée des favoris",
+    });
+  } catch (error) {
+    console.error("💥 Erreur suppression favori:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer les séances favorites de l'utilisateur
+export const getFavoriteSessions = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const favorites = await FavoriteSession.findAll({
+      where: { userId },
+      include: [
+        {
+          model: Session,
+          as: "session",
+          include: [
+            {
+              model: Exercise,
+              as: "exercises",
+              through: {
+                attributes: ["order", "duration"],
+              },
+            },
+            {
+              model: User,
+              as: "creator",
+              attributes: ["id", "username"],
+            },
+          ],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    // Formater les données pour le frontend
+    const formattedSessions = favorites
+      .map((favorite) => {
+        const session = favorite.session;
+        if (!session) return null;
+
+        const sessionData = session.toJSON();
+        return {
+          ...sessionData,
+          createdBy: sessionData.creator?.username || "Inconnu",
+          exercises: sessionData.exercises
+            ? sessionData.exercises.map((exercise) => ({
+                exercise: {
+                  id: exercise.id,
+                  name: exercise.name,
+                  description: exercise.description,
+                  category: exercise.category,
+                  subcategory: exercise.subcategory,
+                  image: exercise.image,
+                },
+                order: exercise.SessionExercise.order,
+                duration: exercise.SessionExercise.duration,
+              }))
+            : [],
+        };
+      })
+      .filter(Boolean);
+
+    res.status(200).json({
+      success: true,
+      count: formattedSessions.length,
+      data: formattedSessions,
+    });
+  } catch (error) {
+    console.error("💥 Erreur récupération favoris:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Vérifier si une séance est dans les favoris
+export const checkIfFavorite = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const favorite = await FavoriteSession.findOne({
+      where: {
+        userId,
+        sessionId: id,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: { isFavorite: !!favorite },
+    });
+  } catch (error) {
+    console.error("💥 Erreur vérification favori:", error);
     res.status(500).json({
       success: false,
       message: error.message,

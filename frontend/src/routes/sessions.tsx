@@ -3,7 +3,16 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { sessionService } from "@/services/sessions";
 import type { Session } from "@/services/sessions";
-import { Plus, Play, Trash2, Clock, Target, User, Star } from "lucide-react";
+import {
+  Plus,
+  Play,
+  Trash2,
+  Clock,
+  Target,
+  User,
+  Star,
+  Heart,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SessionBuilder } from "@/components/SessionBuilder";
 import { StarRating } from "@/components/StarRating";
@@ -14,7 +23,7 @@ export const Route = createFileRoute("/sessions")({
 
 function SessionsPage() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState<string>("all");
@@ -25,6 +34,8 @@ function SessionsPage() {
     useState<Session | null>(null);
   const [selectedRating, setSelectedRating] = useState(0);
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [togglingFavorite, setTogglingFavorite] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -32,7 +43,18 @@ function SessionsPage() {
       return;
     }
     loadSessions();
+    loadFavorites();
   }, [isAuthenticated, filterCategory, sortOrder]);
+
+  const loadFavorites = async () => {
+    try {
+      const favoriteSessions = await sessionService.getFavoriteSessions();
+      const favoriteIds = new Set(favoriteSessions.map((s) => s.id));
+      setFavorites(favoriteIds);
+    } catch (err) {
+      console.error("Erreur chargement favoris:", err);
+    }
+  };
 
   const loadSessions = async () => {
     try {
@@ -101,6 +123,35 @@ function SessionsPage() {
       alert("Une erreur est survenue lors de la notation");
     } finally {
       setRatingSubmitting(false);
+    }
+  };
+
+  const handleToggleFavorite = async (
+    sessionId: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+
+    try {
+      setTogglingFavorite(sessionId);
+      const isFavorite = favorites.has(sessionId);
+
+      if (isFavorite) {
+        await sessionService.removeFromFavorites(sessionId);
+        setFavorites((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(sessionId);
+          return newSet;
+        });
+      } else {
+        await sessionService.addToFavorites(sessionId);
+        setFavorites((prev) => new Set(prev).add(sessionId));
+      }
+    } catch (err) {
+      console.error("Erreur toggle favori:", err);
+      alert("Une erreur est survenue");
+    } finally {
+      setTogglingFavorite(null);
     }
   };
 
@@ -316,6 +367,30 @@ function SessionsPage() {
                     </button>
 
                     <button
+                      onClick={(e) => handleToggleFavorite(session.id, e)}
+                      disabled={togglingFavorite === session.id}
+                      className={cn(
+                        "h-9 w-9 rounded-full border transition-all duration-300 flex items-center justify-center",
+                        favorites.has(session.id)
+                          ? "border-red-500/50 bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                          : "border-neutral-700 bg-neutral-900 text-neutral-400 hover:text-red-400 hover:border-red-500/50"
+                      )}
+                      title={
+                        favorites.has(session.id)
+                          ? "Retirer des favoris"
+                          : "Ajouter aux favoris"
+                      }
+                    >
+                      <Heart
+                        className={cn(
+                          "w-3.5 h-3.5",
+                          favorites.has(session.id) && "fill-current",
+                          togglingFavorite === session.id && "animate-pulse"
+                        )}
+                      />
+                    </button>
+
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleOpenRatingModal(session);
@@ -326,12 +401,14 @@ function SessionsPage() {
                       <Star className="w-3.5 h-3.5" />
                     </button>
 
-                    <button
-                      onClick={() => handleDelete(session.id)}
-                      className="h-9 w-9 rounded-full border border-neutral-700 bg-neutral-900 text-neutral-300 hover:text-red-300 hover:border-red-500/50 transition-colors flex items-center justify-center"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {user && session.creator?.id === user.id && (
+                      <button
+                        onClick={() => handleDelete(session.id)}
+                        className="h-9 w-9 rounded-full border border-neutral-700 bg-neutral-900 text-neutral-300 hover:text-red-300 hover:border-red-500/50 transition-colors flex items-center justify-center"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

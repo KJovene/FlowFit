@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { User, LogOut, FolderOpen, Lock, Dumbbell } from "lucide-react";
+import { User, LogOut, FolderOpen, Lock, Dumbbell, Heart } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { sessionService, type Session } from "@/services/sessions";
 import { exerciseService, type Exercise } from "@/services/exercises";
@@ -14,11 +14,14 @@ function ProfilePage() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const [mySessions, setMySessions] = useState<Session[]>([]);
+  const [favoriteSessions, setFavoriteSessions] = useState<Session[]>([]);
   const [myExercises, setMyExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingFavorites, setLoadingFavorites] = useState(true);
 
   useEffect(() => {
     loadMySessions();
+    loadFavoriteSessions();
     loadMyExercises();
   }, []);
 
@@ -31,6 +34,18 @@ function ProfilePage() {
       console.error("Erreur chargement séances:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadFavoriteSessions = async () => {
+    try {
+      setLoadingFavorites(true);
+      const sessions = await sessionService.getFavoriteSessions();
+      setFavoriteSessions(sessions);
+    } catch (error) {
+      console.error("Erreur chargement favoris:", error);
+    } finally {
+      setLoadingFavorites(false);
     }
   };
 
@@ -176,6 +191,77 @@ function ProfilePage() {
                   >
                     + {mySessions.length - 4} séance
                     {mySessions.length - 4 > 1 ? "s" : ""} de plus
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Séances Favorites - Aperçu */}
+        <div className="rounded-3xl border border-neutral-800/90 bg-neutral-950/90 backdrop-blur-xl p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div
+              className="flex items-center gap-3 cursor-pointer group"
+              onClick={() => navigate({ to: "/favorite-sessions" })}
+            >
+              <Heart className="w-6 h-6 text-red-400 fill-current group-hover:text-red-300 transition-colors" />
+              <h2 className="text-xl font-semibold text-neutral-50 group-hover:text-red-300 transition-colors">
+                Séances Favorites
+              </h2>
+            </div>
+            <button
+              onClick={() => navigate({ to: "/favorite-sessions" })}
+              className="text-sm text-red-400 hover:text-red-300 transition-colors"
+            >
+              Voir tout →
+            </button>
+          </div>
+
+          {/* Aperçu des séances favorites */}
+          {loadingFavorites ? (
+            <div className="text-center py-8 text-neutral-400">
+              Chargement...
+            </div>
+          ) : favoriteSessions.length === 0 ? (
+            <div className="text-center py-8">
+              <Heart className="w-12 h-12 text-neutral-700 mx-auto mb-3" />
+              <p className="text-sm text-neutral-400 mb-4">
+                Ajoutez vos séances préférées à vos favoris pour y accéder
+                rapidement
+              </p>
+              <button
+                onClick={() => navigate({ to: "/sessions" })}
+                className="btn-secondary px-4 py-2 text-sm"
+              >
+                Découvrir des séances
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {favoriteSessions.slice(0, 4).map((session) => (
+                  <SessionCard
+                    key={session.id}
+                    title={session.name}
+                    duration={formatDuration(session.duration)}
+                    category={session.category}
+                    rating={session.rating}
+                    ratingCount={session.ratingCount}
+                    createdBy={session.createdBy}
+                    onClick={() => handleSessionClick(session.id)}
+                  />
+                ))}
+              </div>
+
+              {favoriteSessions.length > 4 && (
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => navigate({ to: "/favorite-sessions" })}
+                    className="text-sm text-neutral-400 hover:text-neutral-200 transition-colors"
+                  >
+                    + {favoriteSessions.length - 4} séance
+                    {favoriteSessions.length - 4 > 1 ? "s" : ""} de plus
                   </button>
                 </div>
               )}

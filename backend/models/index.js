@@ -3,6 +3,7 @@ import Exercise from "./Exercise.js";
 import Session from "./Session.js";
 import SessionExercise from "./SessionExercise.js";
 import SessionRating from "./SessionRating.js";
+import FavoriteSession from "./FavoriteSession.js";
 
 // Définir les associations
 Session.belongsToMany(Exercise, {
@@ -75,4 +76,32 @@ User.hasMany(SessionRating, {
   as: "ratings",
 });
 
-export { User, Exercise, Session, SessionExercise, SessionRating };
+// Relations pour les favoris
+FavoriteSession.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user",
+});
+
+FavoriteSession.belongsTo(Session, {
+  foreignKey: "sessionId",
+  as: "session",
+});
+
+User.hasMany(FavoriteSession, {
+  foreignKey: "userId",
+  as: "favoriteSessions",
+});
+
+Session.hasMany(FavoriteSession, {
+  foreignKey: "sessionId",
+  as: "favoritedBy",
+});
+
+export {
+  User,
+  Exercise,
+  Session,
+  SessionExercise,
+  SessionRating,
+  FavoriteSession,
+};

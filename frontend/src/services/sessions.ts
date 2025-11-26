@@ -192,4 +192,58 @@ export const sessionService = {
     const data = await response.json();
     return data.data || [];
   },
+
+  async addToFavorites(id: string): Promise<void> {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/sessions/${id}/favorite`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+  },
+
+  async removeFromFavorites(id: string): Promise<void> {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/sessions/${id}/favorite`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+  },
+
+  async getFavoriteSessions(): Promise<Session[]> {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/sessions/favorites`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    return data.data || [];
+  },
+
+  async checkIfFavorite(id: string): Promise<boolean> {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/sessions/${id}/is-favorite`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    return data.data.isFavorite;
+  },
 };

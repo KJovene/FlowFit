@@ -15,6 +15,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MySessionsRouteImport } from './routes/my-sessions'
 import { Route as MyExercisesRouteImport } from './routes/my-exercises'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as FavoriteSessionsRouteImport } from './routes/favorite-sessions'
 import { Route as Exercises_newRouteImport } from './routes/exercises_new'
 import { Route as ExercisesRouteImport } from './routes/exercises'
 import { Route as IndexRouteImport } from './routes/index'
@@ -51,6 +52,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FavoriteSessionsRoute = FavoriteSessionsRouteImport.update({
+  id: '/favorite-sessions',
+  path: '/favorite-sessions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Exercises_newRoute = Exercises_newRouteImport.update({
   id: '/exercises_new',
   path: '/exercises_new',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/exercises': typeof ExercisesRoute
   '/exercises_new': typeof Exercises_newRoute
+  '/favorite-sessions': typeof FavoriteSessionsRoute
   '/login': typeof LoginRoute
   '/my-exercises': typeof MyExercisesRoute
   '/my-sessions': typeof MySessionsRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/exercises': typeof ExercisesRoute
   '/exercises_new': typeof Exercises_newRoute
+  '/favorite-sessions': typeof FavoriteSessionsRoute
   '/login': typeof LoginRoute
   '/my-exercises': typeof MyExercisesRoute
   '/my-sessions': typeof MySessionsRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/exercises': typeof ExercisesRoute
   '/exercises_new': typeof Exercises_newRoute
+  '/favorite-sessions': typeof FavoriteSessionsRoute
   '/login': typeof LoginRoute
   '/my-exercises': typeof MyExercisesRoute
   '/my-sessions': typeof MySessionsRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/exercises'
     | '/exercises_new'
+    | '/favorite-sessions'
     | '/login'
     | '/my-exercises'
     | '/my-sessions'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/exercises'
     | '/exercises_new'
+    | '/favorite-sessions'
     | '/login'
     | '/my-exercises'
     | '/my-sessions'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/exercises'
     | '/exercises_new'
+    | '/favorite-sessions'
     | '/login'
     | '/my-exercises'
     | '/my-sessions'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ExercisesRoute: typeof ExercisesRoute
   Exercises_newRoute: typeof Exercises_newRoute
+  FavoriteSessionsRoute: typeof FavoriteSessionsRoute
   LoginRoute: typeof LoginRoute
   MyExercisesRoute: typeof MyExercisesRoute
   MySessionsRoute: typeof MySessionsRoute
@@ -217,6 +230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/favorite-sessions': {
+      id: '/favorite-sessions'
+      path: '/favorite-sessions'
+      fullPath: '/favorite-sessions'
+      preLoaderRoute: typeof FavoriteSessionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exercises_new': {
       id: '/exercises_new'
       path: '/exercises_new'
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ExercisesRoute: ExercisesRoute,
   Exercises_newRoute: Exercises_newRoute,
+  FavoriteSessionsRoute: FavoriteSessionsRoute,
   LoginRoute: LoginRoute,
   MyExercisesRoute: MyExercisesRoute,
   MySessionsRoute: MySessionsRoute,
