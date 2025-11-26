@@ -4,7 +4,7 @@ import { User, Heart } from "lucide-react";
 
 interface SessionCardProps {
   title: string;
-  duration: string;
+  exerciseCount: number;
   category: "Musculation" | "Yoga" | "Mobilité" | "Mixte";
   equipment?: string;
   isActive?: boolean;
@@ -48,7 +48,7 @@ const categoryColors = {
 
 export function SessionCard({
   title,
-  duration,
+  exerciseCount,
   category,
   equipment,
   isActive,
@@ -100,7 +100,7 @@ export function SessionCard({
             colors.badge
           )}
         >
-          {duration}
+          {exerciseCount} {exerciseCount > 1 ? "exercices" : "exercice"}
         </span>
       </div>
       <p className="text-sm font-medium tracking-tight text-neutral-50 mb-1.5">

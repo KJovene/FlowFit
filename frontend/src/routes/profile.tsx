@@ -116,11 +116,6 @@ function ProfilePage() {
     navigate({ to: `/session-details/$sessionId`, params: { sessionId } });
   };
 
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    return `${minutes} min`;
-  };
-
   const sharedCount = mySessions.filter((s) => s.isShared).length;
   const privateCount = mySessions.filter((s) => !s.isShared).length;
 
@@ -243,7 +238,7 @@ function ProfilePage() {
                   <div key={session.id} className="relative">
                     <SessionCard
                       title={session.name}
-                      duration={formatDuration(session.duration)}
+                      exerciseCount={session.exercises?.length || 0}
                       category={session.category}
                       rating={session.rating}
                       ratingCount={session.ratingCount}
@@ -323,7 +318,7 @@ function ProfilePage() {
                   <SessionCard
                     key={session.id}
                     title={session.name}
-                    duration={formatDuration(session.duration)}
+                    exerciseCount={session.exercises?.length || 0}
                     category={session.category}
                     rating={session.rating}
                     ratingCount={session.ratingCount}

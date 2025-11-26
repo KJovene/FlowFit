@@ -96,11 +96,6 @@ function HomePage() {
     fetchSessions();
   }, []);
 
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    return `${minutes} min`;
-  };
-
   const handleSessionClick = (sessionId: string) => {
     navigate({ to: `/session-details/$sessionId`, params: { sessionId } });
   };
@@ -189,12 +184,12 @@ function HomePage() {
               <SessionCard
                 key={session.id}
                 title={session.name}
-                duration={formatDuration(session.duration)}
+                exerciseCount={session.exercises?.length || 0}
                 category={session.category}
                 rating={session.rating}
                 ratingCount={session.ratingCount}
                 createdBy={session.creator?.username}
-                  creatorProfileImage={session.creator?.profileImage}
+                creatorProfileImage={session.creator?.profileImage}
                 onClick={() => handleSessionClick(session.id)}
               />
             ))}
@@ -217,12 +212,12 @@ function HomePage() {
               <SessionCard
                 key={session.id}
                 title={session.name}
-                duration={formatDuration(session.duration)}
+                exerciseCount={session.exercises?.length || 0}
                 category={session.category}
                 rating={session.rating}
                 ratingCount={session.ratingCount}
                 createdBy={session.creator?.username}
-                  creatorProfileImage={session.creator?.profileImage}
+                creatorProfileImage={session.creator?.profileImage}
                 onClick={() => handleSessionClick(session.id)}
               />
             ))}
@@ -245,12 +240,12 @@ function HomePage() {
               <SessionCard
                 key={session.id}
                 title={session.name}
-                duration={formatDuration(session.duration)}
+                exerciseCount={session.exercises?.length || 0}
                 category={session.category}
                 rating={session.rating}
                 ratingCount={session.ratingCount}
                 createdBy={session.creator?.username}
-                  creatorProfileImage={session.creator?.profileImage}
+                creatorProfileImage={session.creator?.profileImage}
                 onClick={() => handleSessionClick(session.id)}
               />
             ))}
@@ -271,12 +266,12 @@ function HomePage() {
               <SessionCard
                 key={session.id}
                 title={session.name}
-                duration={formatDuration(session.duration)}
+                exerciseCount={session.exercises?.length || 0}
                 category={session.category}
                 rating={session.rating}
                 ratingCount={session.ratingCount}
                 createdBy={session.creator?.username}
-                  creatorProfileImage={session.creator?.profileImage}
+                creatorProfileImage={session.creator?.profileImage}
                 onClick={() => handleSessionClick(session.id)}
               />
             ))}
@@ -297,12 +292,12 @@ function HomePage() {
               <SessionCard
                 key={session.id}
                 title={session.name}
-                duration={formatDuration(session.duration)}
+                exerciseCount={session.exercises?.length || 0}
                 category={session.category}
                 rating={session.rating}
                 ratingCount={session.ratingCount}
                 createdBy={session.creator?.username}
-                  creatorProfileImage={session.creator?.profileImage}
+                creatorProfileImage={session.creator?.profileImage}
                 onClick={() => handleSessionClick(session.id)}
               />
             ))}
@@ -325,12 +320,12 @@ function HomePage() {
               <SessionCard
                 key={session.id}
                 title={session.name}
-                duration={formatDuration(session.duration)}
+                exerciseCount={session.exercises?.length || 0}
                 category={session.category}
                 rating={session.rating}
                 ratingCount={session.ratingCount}
                 createdBy={session.creator?.username}
-                  creatorProfileImage={session.creator?.profileImage}
+                creatorProfileImage={session.creator?.profileImage}
                 onClick={() => handleSessionClick(session.id)}
               />
             ))}
