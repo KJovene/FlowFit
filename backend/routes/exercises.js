@@ -7,6 +7,9 @@ import {
   getExerciseById,
   updateExercise,
   deleteExercise,
+  toggleExerciseSharing,
+  getCommunityExercises,
+  getMyExercises,
 } from "../controllers/exerciseController.js";
 import { upload } from "../config/multer.js";
 import { protect } from "../middleware/auth.js";
@@ -16,6 +19,8 @@ const router = express.Router();
 // Routes - toutes protégées par l'authentification
 router.post("/", protect, upload.single("image"), createExercise);
 router.get("/", protect, getAllExercises);
+router.get("/community", protect, getCommunityExercises);
+router.get("/my-exercises", protect, getMyExercises);
 router.get("/category/:category", protect, getExercisesByCategory);
 router.get(
   "/category/:category/:subcategory",
@@ -25,5 +30,6 @@ router.get(
 router.get("/:id", protect, getExerciseById);
 router.put("/:id", protect, upload.single("image"), updateExercise);
 router.delete("/:id", protect, deleteExercise);
+router.post("/:id/toggle-share", protect, toggleExerciseSharing);
 
 export default router;

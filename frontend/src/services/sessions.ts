@@ -21,6 +21,7 @@ export interface Session {
   createdAt: string;
   rating: number; // note moyenne sur 5
   ratingCount: number; // nombre de notes
+  isShared: boolean; // si la séance est partagée avec la communauté
   createdBy?: string;
   creator?: {
     id: string;
@@ -141,5 +142,54 @@ export const sessionService = {
 
     const data = await response.json();
     return data.data.userRating;
+  },
+
+  async share(id: string): Promise<Session> {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/sessions/${id}/share`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+    return data.data;
+  },
+
+  async toggleShare(id: string): Promise<Session> {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/sessions/${id}/toggle-share`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+    return data.data;
+  },
+
+  async getUserSessions(shared?: boolean): Promise<Session[]> {
+    const token = localStorage.getItem("token");
+    let url = `${API_URL}/sessions/my-sessions`;
+    if (shared !== undefined) {
+      url += `?shared=${shared}`;
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    return data.data || [];
   },
 };

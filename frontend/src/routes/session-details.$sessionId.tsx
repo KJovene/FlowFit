@@ -11,6 +11,7 @@ import {
   Settings,
   Star,
   User,
+  Share2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StarRating } from "@/components/StarRating";
@@ -32,6 +33,8 @@ function SessionDetailsPage() {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [selectedRating, setSelectedRating] = useState(0);
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const { user } = useAuthStore();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -112,6 +115,33 @@ function SessionDetailsPage() {
     }
   };
 
+  const handleToggleShare = async () => {
+    if (!session) return;
+
+    const action = session.isShared ? "retirer de" : "partager avec";
+    if (
+      window.confirm(
+        `Voulez-vous vraiment ${action} la communauté cette séance ?`
+      )
+    ) {
+      try {
+        setIsSharing(true);
+        await sessionService.toggleShare(session.id);
+        await loadSession();
+        alert(
+          session.isShared
+            ? "Séance retirée de la communauté !"
+            : "Séance partagée avec succès !"
+        );
+      } catch (err: any) {
+        console.error("Erreur lors du partage:", err);
+        alert(err.message || "Une erreur est survenue lors du partage");
+      } finally {
+        setIsSharing(false);
+      }
+    }
+  };
+
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "Musculation":
@@ -168,7 +198,7 @@ function SessionDetailsPage() {
         </button>
 
         <div className="flex items-start justify-between gap-4">
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-50 mb-2">
               {session.name}
             </h1>
@@ -199,6 +229,11 @@ function SessionDetailsPage() {
                 <Clock className="w-4 h-4" />
                 <span>{formatDuration(calculateTotalDuration())}</span>
               </div>
+              {!session.isShared && (
+                <span className="text-xs px-3 py-1 rounded-full bg-amber-500/20 text-amber-300">
+                  Privée
+                </span>
+              )}
             </div>
 
             {/* Affichage de la note et bouton pour noter */}
@@ -231,6 +266,23 @@ function SessionDetailsPage() {
               )}
             </div>
           </div>
+
+          {/* Bouton de toggle partage si l'utilisateur est le créateur */}
+          {user && session.creator?.id === user.id && (
+            <button
+              onClick={handleToggleShare}
+              disabled={isSharing}
+              className={cn(
+                "px-4 py-2 text-sm flex items-center gap-2 rounded-xl border font-medium transition-colors disabled:opacity-50",
+                session.isShared
+                  ? "border-green-500/50 bg-green-500/10 text-green-300 hover:bg-green-500/20"
+                  : "border-amber-500/50 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
+              )}
+            >
+              <Share2 className="w-4 h-4" />
+              {isSharing ? "..." : session.isShared ? "Partagé" : "Privé"}
+            </button>
+          )}
         </div>
       </div>
 

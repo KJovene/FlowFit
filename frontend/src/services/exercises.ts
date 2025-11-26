@@ -9,6 +9,7 @@ export interface Exercise {
   image: string;
   createdAt: string;
   createdBy?: string;
+  isShared?: boolean;
   creator?: {
     id: string;
     username: string;
@@ -80,5 +81,55 @@ export const exerciseService = {
         Authorization: `Bearer ${token}`,
       },
     });
+  },
+
+  async toggleShare(id: string): Promise<Exercise> {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/exercises/${id}/toggle-share`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+    return data.data;
+  },
+
+  async getCommunityExercises(category?: string): Promise<Exercise[]> {
+    const token = localStorage.getItem("token");
+    let url = `${API_URL}/exercises/community`;
+    if (category && category !== "all") {
+      url += `?category=${category}`;
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    return data.data || [];
+  },
+
+  async getMyExercises(shared?: boolean): Promise<Exercise[]> {
+    const token = localStorage.getItem("token");
+    let url = `${API_URL}/exercises/my-exercises`;
+    if (shared !== undefined) {
+      url += `?shared=${shared}`;
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    return data.data || [];
   },
 };

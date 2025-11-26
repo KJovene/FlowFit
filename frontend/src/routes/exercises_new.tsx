@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/exercises")({
+export const Route = createFileRoute("/exercises_new")({
   component: ExercisesPage,
 });
 

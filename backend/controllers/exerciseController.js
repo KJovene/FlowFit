@@ -277,3 +277,120 @@ export const deleteExercise = async (req, res) => {
     });
   }
 };
+
+// Toggle le partage d'un exercice (communautaire ou privé)
+export const toggleExerciseSharing = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const exercise = await Exercise.findByPk(id);
+
+    if (!exercise) {
+      return res.status(404).json({
+        success: false,
+        message: "Exercice non trouvé",
+      });
+    }
+
+    // Vérifier que l'utilisateur est le créateur
+    if (exercise.createdBy !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Vous n'êtes pas autorisé à modifier cet exercice",
+      });
+    }
+
+    // Toggle isShared
+    await exercise.update({ isShared: !exercise.isShared });
+
+    res.status(200).json({
+      success: true,
+      message: exercise.isShared
+        ? "Exercice partagé avec la communauté"
+        : "Exercice retiré de la communauté",
+      data: exercise,
+    });
+  } catch (error) {
+    console.error("Erreur toggle partage exercice:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer les exercices communautaires (partagés)
+export const getCommunityExercises = async (req, res) => {
+  try {
+    const { category } = req.query;
+
+    const whereClause = { isShared: true };
+    if (category && category !== "all") {
+      whereClause.category = category;
+    }
+
+    const exercises = await Exercise.findAll({
+      where: whereClause,
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username"],
+        },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      count: exercises.length,
+      data: exercises,
+    });
+  } catch (error) {
+    console.error("Erreur récupération exercices communautaires:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer les exercices créés par l'utilisateur
+export const getMyExercises = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { shared } = req.query; // "true", "false" ou undefined pour tous
+
+    const whereClause = { createdBy: userId };
+    if (shared === "true") {
+      whereClause.isShared = true;
+    } else if (shared === "false") {
+      whereClause.isShared = false;
+    }
+
+    const exercises = await Exercise.findAll({
+      where: whereClause,
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username"],
+        },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      count: exercises.length,
+      data: exercises,
+    });
+  } catch (error) {
+    console.error("Erreur récupération exercices utilisateur:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

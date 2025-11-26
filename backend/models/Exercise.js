@@ -37,6 +37,11 @@ const Exercise = sequelize.define(
         key: "id",
       },
     },
+    isShared: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
   },
   {
     timestamps: true,

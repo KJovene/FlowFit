@@ -1,13 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-  User,
-  LogOut,
-  Calendar as CalendarIcon,
-  Award,
-  Activity,
-} from "lucide-react";
+import { User, LogOut, FolderOpen, Lock, Dumbbell } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
-import { Calendar } from "@/components/Calendar";
+import { sessionService, type Session } from "@/services/sessions";
+import { exerciseService, type Exercise } from "@/services/exercises";
+import { useEffect, useState } from "react";
+import { SessionCard } from "@/components/SessionCard";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
@@ -16,11 +13,55 @@ export const Route = createFileRoute("/profile")({
 function ProfilePage() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
+  const [mySessions, setMySessions] = useState<Session[]>([]);
+  const [myExercises, setMyExercises] = useState<Exercise[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadMySessions();
+    loadMyExercises();
+  }, []);
+
+  const loadMySessions = async () => {
+    try {
+      setLoading(true);
+      const sessions = await sessionService.getUserSessions();
+      setMySessions(sessions);
+    } catch (error) {
+      console.error("Erreur chargement séances:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMyExercises = async () => {
+    try {
+      const exercises = await exerciseService.getMyExercises();
+      setMyExercises(exercises);
+    } catch (error) {
+      console.error("Erreur chargement exercices:", error);
+    }
+  };
 
   const handleLogout = () => {
     logout();
     navigate({ to: "/login" });
   };
+
+  const handleSessionClick = (sessionId: string) => {
+    navigate({ to: `/session-details/$sessionId`, params: { sessionId } });
+  };
+
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes} min`;
+  };
+
+  const sharedCount = mySessions.filter((s) => s.isShared).length;
+  const privateCount = mySessions.filter((s) => !s.isShared).length;
+
+  const sharedExercisesCount = myExercises.filter((e) => e.isShared).length;
+  const privateExercisesCount = myExercises.filter((e) => !e.isShared).length;
 
   if (!user) {
     navigate({ to: "/login" });
@@ -49,126 +90,196 @@ function ProfilePage() {
               Déconnexion
             </button>
           </div>
-
-          <div className="grid sm:grid-cols-3 gap-4">
-            <div className="rounded-2xl border border-neutral-800/80 bg-neutral-925/80 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <CalendarIcon className="w-4 h-4 text-sky-300" />
-                <span className="text-xs text-neutral-400">Cette semaine</span>
-              </div>
-              <p className="text-2xl font-semibold text-neutral-50">3</p>
-              <p className="text-xs text-neutral-400">séances</p>
-            </div>
-
-            <div className="rounded-2xl border border-neutral-800/80 bg-neutral-925/80 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Activity className="w-4 h-4 text-cyan-300" />
-                <span className="text-xs text-neutral-400">Total</span>
-              </div>
-              <p className="text-2xl font-semibold text-neutral-50">120</p>
-              <p className="text-xs text-neutral-400">minutes</p>
-            </div>
-
-            <div className="rounded-2xl border border-neutral-800/80 bg-neutral-925/80 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Award className="w-4 h-4 text-blue-300" />
-                <span className="text-xs text-neutral-400">Badges</span>
-              </div>
-              <p className="text-2xl font-semibold text-neutral-50">2</p>
-              <p className="text-xs text-neutral-400">débloqués</p>
-            </div>
-          </div>
         </div>
 
-        {/* Calendar & Rewards Section */}
-        <div>
-          <div className="mb-4">
-            <h2 className="text-2xl font-semibold tracking-tight text-neutral-50 mb-2">
-              Calendrier & récompenses
-            </h2>
-            <p className="text-base text-neutral-300">
-              Visualisez vos séances de la semaine et débloquez des rewards
-            </p>
+        {/* Mes Séances - Aperçu */}
+        <div className="rounded-3xl border border-neutral-800/90 bg-neutral-950/90 backdrop-blur-xl p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div
+              className="flex items-center gap-3 cursor-pointer group"
+              onClick={() => navigate({ to: "/my-sessions" })}
+            >
+              <FolderOpen className="w-6 h-6 text-sky-400 group-hover:text-sky-300 transition-colors" />
+              <h2 className="text-xl font-semibold text-neutral-50 group-hover:text-sky-300 transition-colors">
+                Mes Séances
+              </h2>
+            </div>
+            <button
+              onClick={() => navigate({ to: "/my-sessions" })}
+              className="text-sm text-sky-400 hover:text-sky-300 transition-colors"
+            >
+              Voir tout →
+            </button>
           </div>
-          <Calendar />
+
+          {/* Stats rapides */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-3 text-center">
+              <p className="text-2xl font-semibold text-neutral-50">
+                {mySessions.length}
+              </p>
+              <p className="text-xs text-neutral-400">Total</p>
+            </div>
+            <div className="rounded-xl border border-green-500/30 bg-green-500/10 p-3 text-center">
+              <p className="text-2xl font-semibold text-green-300">
+                {sharedCount}
+              </p>
+              <p className="text-xs text-neutral-400">Partagées</p>
+            </div>
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-center">
+              <p className="text-2xl font-semibold text-amber-300">
+                {privateCount}
+              </p>
+              <p className="text-xs text-neutral-400">Privées</p>
+            </div>
+          </div>
+
+          {/* Aperçu des dernières séances */}
+          {loading ? (
+            <div className="text-center py-8 text-neutral-400">
+              Chargement...
+            </div>
+          ) : mySessions.length === 0 ? (
+            <div className="text-center py-8 text-neutral-400">
+              Vous n'avez pas encore créé de séance
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {mySessions.slice(0, 4).map((session) => (
+                  <div key={session.id} className="relative">
+                    <SessionCard
+                      title={session.name}
+                      duration={formatDuration(session.duration)}
+                      category={session.category}
+                      rating={session.rating}
+                      ratingCount={session.ratingCount}
+                      createdBy={session.createdBy}
+                      onClick={() => handleSessionClick(session.id)}
+                    />
+                    {!session.isShared && (
+                      <div className="absolute top-3 right-16">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs">
+                          <Lock className="w-3 h-3" />
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {mySessions.length > 4 && (
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => navigate({ to: "/my-sessions" })}
+                    className="text-sm text-neutral-400 hover:text-neutral-200 transition-colors"
+                  >
+                    + {mySessions.length - 4} séance
+                    {mySessions.length - 4 > 1 ? "s" : ""} de plus
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
 
-        {/* Activity Stats */}
-        <div className="rounded-3xl border border-neutral-800/90 bg-neutral-950/90 p-6">
-          <h2 className="text-lg font-semibold tracking-tight text-neutral-50 mb-4">
-            Répartition par catégorie
-          </h2>
-
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-neutral-300">Musculation</span>
-                <span className="text-sm text-neutral-400">45%</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-neutral-900 overflow-hidden">
-                <div className="h-full w-[45%] rounded-full bg-gradient-to-r from-sky-500 to-blue-500"></div>
-              </div>
+        {/* Mes Exercices - Aperçu */}
+        <div className="rounded-3xl border border-neutral-800/90 bg-neutral-950/90 backdrop-blur-xl p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div
+              className="flex items-center gap-3 cursor-pointer group"
+              onClick={() => navigate({ to: "/my-exercises" })}
+            >
+              <Dumbbell className="w-6 h-6 text-sky-400 group-hover:text-sky-300 transition-colors" />
+              <h2 className="text-xl font-semibold text-neutral-50 group-hover:text-sky-300 transition-colors">
+                Mes Exercices
+              </h2>
             </div>
+            <button
+              onClick={() => navigate({ to: "/my-exercises" })}
+              className="text-sm text-sky-400 hover:text-sky-300 transition-colors"
+            >
+              Voir tout →
+            </button>
+          </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-neutral-300">Yoga</span>
-                <span className="text-sm text-neutral-400">30%</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-neutral-900 overflow-hidden">
-                <div className="h-full w-[30%] rounded-full bg-gradient-to-r from-cyan-400 to-sky-500"></div>
-              </div>
+          {/* Stats rapides */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-3 text-center">
+              <p className="text-2xl font-semibold text-neutral-50">
+                {myExercises.length}
+              </p>
+              <p className="text-xs text-neutral-400">Total</p>
             </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-neutral-300">Mobilité</span>
-                <span className="text-sm text-neutral-400">25%</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-neutral-900 overflow-hidden">
-                <div className="h-full w-[25%] rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
-              </div>
+            <div className="rounded-xl border border-green-500/30 bg-green-500/10 p-3 text-center">
+              <p className="text-2xl font-semibold text-green-300">
+                {sharedExercisesCount}
+              </p>
+              <p className="text-xs text-neutral-400">Partagés</p>
+            </div>
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-center">
+              <p className="text-2xl font-semibold text-amber-300">
+                {privateExercisesCount}
+              </p>
+              <p className="text-xs text-neutral-400">Privés</p>
             </div>
           </div>
-        </div>
 
-        {/* Recent Activity */}
-        <div className="rounded-3xl border border-neutral-800/90 bg-neutral-950/90 p-6">
-          <h2 className="text-lg font-semibold tracking-tight text-neutral-50 mb-4">
-            Activité récente
-          </h2>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 rounded-xl border border-neutral-800/80 bg-neutral-925/80">
-              <div>
-                <p className="text-sm font-medium text-neutral-50">
-                  Full Body maison
-                </p>
-                <p className="text-xs text-neutral-400">Musculation • 30 min</p>
-              </div>
-              <span className="text-xs text-neutral-500">Aujourd'hui</span>
+          {/* Aperçu des derniers exercices */}
+          {myExercises.length === 0 ? (
+            <div className="text-center py-8 text-neutral-400">
+              Vous n'avez pas encore créé d'exercice
             </div>
-
-            <div className="flex items-center justify-between p-3 rounded-xl border border-neutral-800/80 bg-neutral-925/80">
-              <div>
-                <p className="text-sm font-medium text-neutral-50">
-                  Yoga réveil
-                </p>
-                <p className="text-xs text-neutral-400">Yoga • 15 min</p>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {myExercises.slice(0, 4).map((exercise) => (
+                  <div
+                    key={exercise.id}
+                    className="rounded-xl border border-neutral-800 bg-neutral-900/50 overflow-hidden hover:border-neutral-700 transition-colors cursor-pointer"
+                    onClick={() => navigate({ to: "/my-exercises" })}
+                  >
+                    <div className="aspect-video bg-neutral-900 relative">
+                      {exercise.image && (
+                        <img
+                          src={`http://localhost:4000${exercise.image}`}
+                          alt={exercise.name}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                      {!exercise.isShared && (
+                        <div className="absolute top-2 right-2">
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs">
+                            <Lock className="w-3 h-3" />
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <h4 className="text-sm font-semibold text-neutral-50 line-clamp-1">
+                        {exercise.name}
+                      </h4>
+                      <p className="text-xs text-neutral-400 mt-1">
+                        {exercise.category}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <span className="text-xs text-neutral-500">Hier</span>
-            </div>
 
-            <div className="flex items-center justify-between p-3 rounded-xl border border-neutral-800/80 bg-neutral-925/80">
-              <div>
-                <p className="text-sm font-medium text-neutral-50">
-                  Mobilité dos
-                </p>
-                <p className="text-xs text-neutral-400">Mobilité • 10 min</p>
-              </div>
-              <span className="text-xs text-neutral-500">Il y a 2 jours</span>
-            </div>
-          </div>
+              {myExercises.length > 4 && (
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => navigate({ to: "/my-exercises" })}
+                    className="text-sm text-neutral-400 hover:text-neutral-200 transition-colors"
+                  >
+                    + {myExercises.length - 4} exercice
+                    {myExercises.length - 4 > 1 ? "s" : ""} de plus
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     </section>

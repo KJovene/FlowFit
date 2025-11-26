@@ -130,14 +130,45 @@ function HomePage() {
             <span>Sport à la maison • Simple & guidé</span>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 pt-1">
-            <Link to="/sessions" className="btn-primary px-5 sm:px-6 py-2">
-              <Plus className="w-4 h-4 stroke-[1.5] mr-2" />
-              Créer une séance
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 max-w-2xl">
+            <Link
+              to="/sessions"
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500/10 to-sky-600/10 border border-sky-500/30 p-6 hover:border-sky-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-sky-500/20"
+            >
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-sky-500/20 text-sky-400 group-hover:bg-sky-500/30 transition-colors">
+                  <Activity className="w-6 h-6 stroke-[1.5]" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-white mb-1">
+                    Les séances
+                  </h3>
+                  <p className="text-sm text-neutral-400">
+                    Découvrir les programmes
+                  </p>
+                </div>
+                <Plus className="w-5 h-5 text-sky-400 group-hover:translate-x-1 transition-transform" />
+              </div>
             </Link>
-            <Link to="/exercises" className="btn-primary px-5 sm:px-6 py-2">
-              <Plus className="w-4 h-4 stroke-[1.5] mr-2" />
-              Créer un exercice
+
+            <Link
+              to="/exercises"
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-500/10 to-cyan-600/10 border border-cyan-500/30 p-6 hover:border-cyan-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20"
+            >
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500/30 transition-colors">
+                  <Dumbbell className="w-6 h-6 stroke-[1.5]" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-white mb-1">
+                    Les exercices
+                  </h3>
+                  <p className="text-sm text-neutral-400">
+                    Explorer les mouvements
+                  </p>
+                </div>
+                <Plus className="w-5 h-5 text-cyan-400 group-hover:translate-x-1 transition-transform" />
+              </div>
             </Link>
           </div>
         </div>

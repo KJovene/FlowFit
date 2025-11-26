@@ -85,12 +85,15 @@ export const createSession = async (req, res) => {
   }
 };
 
-// Récupérer toutes les séances
+// Récupérer toutes les séances communautaires (partagées)
 export const getAllSessions = async (req, res) => {
   try {
     const { category } = req.query;
 
-    const whereClause = category && category !== "all" ? { category } : {};
+    const whereClause = { isShared: true };
+    if (category && category !== "all") {
+      whereClause.category = category;
+    }
 
     const sessions = await Session.findAll({
       where: whereClause,
@@ -435,6 +438,164 @@ export const getUserRating = async (req, res) => {
     });
   } catch (error) {
     console.error("💥 Erreur récupération note utilisateur:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Partager une séance avec la communauté
+export const shareSession = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const session = await Session.findByPk(id);
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Séance non trouvée",
+      });
+    }
+
+    // Vérifier que l'utilisateur est le créateur
+    if (session.createdBy !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Vous n'êtes pas autorisé à partager cette séance",
+      });
+    }
+
+    // Vérifier si déjà partagée
+    if (session.isShared) {
+      return res.status(400).json({
+        success: false,
+        message: "Cette séance est déjà partagée",
+      });
+    }
+
+    await session.update({ isShared: true });
+
+    res.status(200).json({
+      success: true,
+      message: "Séance partagée avec la communauté",
+      data: session,
+    });
+  } catch (error) {
+    console.error("💥 Erreur partage séance:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Toggle le partage d'une séance (communautaire ou privée)
+export const toggleSessionSharing = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const session = await Session.findByPk(id);
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Séance non trouvée",
+      });
+    }
+
+    // Vérifier que l'utilisateur est le créateur
+    if (session.createdBy !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Vous n'êtes pas autorisé à modifier cette séance",
+      });
+    }
+
+    // Toggle isShared
+    await session.update({ isShared: !session.isShared });
+
+    res.status(200).json({
+      success: true,
+      message: session.isShared
+        ? "Séance partagée avec la communauté"
+        : "Séance retirée de la communauté",
+      data: session,
+    });
+  } catch (error) {
+    console.error("💥 Erreur toggle partage séance:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer les séances créées par l'utilisateur
+export const getUserSessions = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { shared } = req.query; // "true", "false" ou undefined pour toutes
+
+    const whereClause = { createdBy: userId };
+    if (shared === "true") {
+      whereClause.isShared = true;
+    } else if (shared === "false") {
+      whereClause.isShared = false;
+    }
+
+    const sessions = await Session.findAll({
+      where: whereClause,
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: Exercise,
+          as: "exercises",
+          through: {
+            attributes: ["order", "duration"],
+          },
+        },
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username"],
+        },
+      ],
+    });
+
+    // Formater les données pour le frontend
+    const formattedSessions = sessions.map((session) => {
+      const sessionData = session.toJSON();
+      return {
+        ...sessionData,
+        createdBy: sessionData.creator?.username || "Inconnu",
+        exercises: sessionData.exercises
+          ? sessionData.exercises.map((exercise) => ({
+              exercise: {
+                id: exercise.id,
+                name: exercise.name,
+                description: exercise.description,
+                category: exercise.category,
+                subcategory: exercise.subcategory,
+                image: exercise.image,
+              },
+              order: exercise.SessionExercise.order,
+              duration: exercise.SessionExercise.duration,
+            }))
+          : [],
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      count: formattedSessions.length,
+      data: formattedSessions,
+    });
+  } catch (error) {
+    console.error("💥 Erreur récupération séances utilisateur:", error);
     res.status(500).json({
       success: false,
       message: error.message,

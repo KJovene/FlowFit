@@ -26,20 +26,6 @@ export function Header() {
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6 text-sm text-neutral-300">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm text-neutral-200 hover:text-sky-300 transition-colors"
-            activeProps={{
-              className: "text-sky-300",
-            }}
-          >
-            <span>Accueil</span>
-            <span className="h-0.5 w-5 rounded-full bg-sky-400"></span>
-          </Link>
-        </nav>
-
         {/* Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
           <button className="hidden sm:inline-flex items-center gap-1.5 text-xs sm:text-sm text-neutral-300 hover:text-neutral-50 transition-colors">
@@ -110,46 +96,9 @@ export function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-neutral-800/80 bg-neutral-950/95 backdrop-blur-md">
           <nav className="flex flex-col gap-1 px-4 py-3">
-            <Link
-              to="/"
-              className="text-sm text-neutral-200 hover:text-sky-300 py-2 px-3 rounded-lg hover:bg-neutral-900/50 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Accueil
-            </Link>
-            <Link
-              to="/programmes"
-              className="text-sm text-neutral-200 hover:text-sky-300 py-2 px-3 rounded-lg hover:bg-neutral-900/50 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Programmes
-            </Link>
-
             {isAuthenticated && (
               <>
                 <div className="h-px bg-neutral-800/80 my-2"></div>
-                <Link
-                  to="/profile"
-                  className="text-sm text-neutral-200 hover:text-sky-300 py-2 px-3 rounded-lg hover:bg-neutral-900/50 transition-colors flex items-center gap-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <User className="w-4 h-4" />
-                  <span>{user?.username || "Profil"}</span>
-                </Link>
-                <Link
-                  to="/exercises"
-                  className="text-sm text-neutral-200 hover:text-sky-300 py-2 px-3 rounded-lg hover:bg-neutral-900/50 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Exercices
-                </Link>
-                <Link
-                  to="/sessions"
-                  className="text-sm text-neutral-200 hover:text-sky-300 py-2 px-3 rounded-lg hover:bg-neutral-900/50 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Séances
-                </Link>
                 <button
                   onClick={handleLogout}
                   className="text-sm text-red-300 hover:text-red-200 py-2 px-3 rounded-lg hover:bg-neutral-900/50 transition-colors flex items-center gap-2 text-left"

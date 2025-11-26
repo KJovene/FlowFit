@@ -46,7 +46,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   register: async (username, email, password) => {
     try {
-      const result = await authService.register({ username, email, password });
+      const result = await authService.register({
+        username,
+        email,
+        password,
+        passwordConfirm: password,
+      });
       if (result.success && result.token && result.user) {
         set({
           user: result.user,

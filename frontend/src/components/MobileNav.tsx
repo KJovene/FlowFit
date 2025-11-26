@@ -13,11 +13,6 @@ export function MobileNav() {
       path: "/",
     },
     {
-      name: "Programmes",
-      icon: ListChecks,
-      path: "/programmes",
-    },
-    {
       name: "Profil",
       icon: User,
       path: "/profile",

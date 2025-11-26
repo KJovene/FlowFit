@@ -53,6 +53,11 @@ const Session = sequelize.define(
       allowNull: false,
       defaultValue: 0,
     },
+    isShared: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     createdBy: {
       type: DataTypes.UUID,
       allowNull: true,
