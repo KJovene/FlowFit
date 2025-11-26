@@ -64,7 +64,7 @@ export const getAllExercises = async (req, res) => {
         {
           model: User,
           as: "creator",
-          attributes: ["id", "username"],
+          attributes: ["id", "username", "profileImage"],
         },
       ],
     });
@@ -95,7 +95,7 @@ export const getExercisesByCategory = async (req, res) => {
         {
           model: User,
           as: "creator",
-          attributes: ["id", "username"],
+          attributes: ["id", "username", "profileImage"],
         },
       ],
     });
@@ -130,7 +130,7 @@ export const getExercisesBySubcategory = async (req, res) => {
         {
           model: User,
           as: "creator",
-          attributes: ["id", "username"],
+          attributes: ["id", "username", "profileImage"],
         },
       ],
     });
@@ -161,7 +161,7 @@ export const getExerciseById = async (req, res) => {
         {
           model: User,
           as: "creator",
-          attributes: ["id", "username"],
+          attributes: ["id", "username", "profileImage"],
         },
       ],
     });
@@ -337,7 +337,7 @@ export const getCommunityExercises = async (req, res) => {
         {
           model: User,
           as: "creator",
-          attributes: ["id", "username"],
+          attributes: ["id", "username", "profileImage"],
         },
       ],
     });
@@ -376,7 +376,7 @@ export const getMyExercises = async (req, res) => {
         {
           model: User,
           as: "creator",
-          attributes: ["id", "username"],
+          attributes: ["id", "username", "profileImage"],
         },
       ],
     });

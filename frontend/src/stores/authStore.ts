@@ -5,6 +5,7 @@ interface User {
   id: string;
   username: string;
   email: string;
+  profileImage?: string;
 }
 
 interface AuthStore {
@@ -19,6 +20,7 @@ interface AuthStore {
   ) => Promise<boolean>;
   logout: () => void;
   initAuth: () => void;
+  updateProfileImage: (profileImage: string) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -85,6 +87,18 @@ export const useAuthStore = create<AuthStore>((set) => ({
         token,
         isAuthenticated: true,
       });
+    }
+  },
+
+  updateProfileImage: (profileImage: string) => {
+    set((state) => ({
+      user: state.user ? { ...state.user, profileImage } : null,
+    }));
+    // Update localStorage as well
+    const user = authService.getUser();
+    if (user) {
+      user.profileImage = profileImage;
+      localStorage.setItem("user", JSON.stringify(user));
     }
   },
 }));

@@ -19,6 +19,7 @@ interface AuthResponse {
     id: string;
     username: string;
     email: string;
+    profileImage?: string;
   };
   message?: string;
 }
@@ -96,5 +97,31 @@ export const authService = {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  },
+
+  async uploadProfileImage(file: File): Promise<AuthResponse> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error("Non authentifié");
+    }
+
+    const formData = new FormData();
+    formData.append("profileImage", file);
+
+    const response = await fetch(`${API_URL}/auth/profile-image`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (data.success && data.user) {
+      localStorage.setItem("user", JSON.stringify(data.user));
+    }
+
+    return data;
   },
 };

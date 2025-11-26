@@ -13,6 +13,7 @@ export interface Exercise {
   creator?: {
     id: string;
     username: string;
+    profileImage?: string;
   };
 }
 

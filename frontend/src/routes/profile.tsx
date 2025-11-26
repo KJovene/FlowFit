@@ -1,9 +1,18 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { User, LogOut, FolderOpen, Lock, Dumbbell, Heart } from "lucide-react";
+import {
+  User,
+  LogOut,
+  FolderOpen,
+  Lock,
+  Dumbbell,
+  Heart,
+  Camera,
+} from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { sessionService, type Session } from "@/services/sessions";
 import { exerciseService, type Exercise } from "@/services/exercises";
-import { useEffect, useState } from "react";
+import { authService } from "@/services/auth";
+import { useEffect, useState, useRef } from "react";
 import { SessionCard } from "@/components/SessionCard";
 
 export const Route = createFileRoute("/profile")({
@@ -12,12 +21,14 @@ export const Route = createFileRoute("/profile")({
 
 function ProfilePage() {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { user, logout, updateProfileImage } = useAuthStore();
   const [mySessions, setMySessions] = useState<Session[]>([]);
   const [favoriteSessions, setFavoriteSessions] = useState<Session[]>([]);
   const [myExercises, setMyExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingFavorites, setLoadingFavorites] = useState(true);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadMySessions();
@@ -63,6 +74,44 @@ function ProfilePage() {
     navigate({ to: "/login" });
   };
 
+  const handleProfileImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("La taille de l'image ne doit pas dépasser 5 MB");
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Veuillez sélectionner une image valide");
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      const response = await authService.uploadProfileImage(file);
+
+      if (response.success && response.user?.profileImage) {
+        updateProfileImage(response.user.profileImage);
+        alert("Photo de profil mise à jour avec succès !");
+      } else {
+        alert("Erreur lors de la mise à jour de la photo");
+      }
+    } catch (error) {
+      console.error("Erreur upload photo:", error);
+      alert("Erreur lors de l'upload de la photo");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSessionClick = (sessionId: string) => {
     navigate({ to: `/session-details/$sessionId`, params: { sessionId } });
   };
@@ -90,8 +139,37 @@ function ProfilePage() {
         <div className="rounded-3xl border border-neutral-800/90 bg-neutral-950/90 backdrop-blur-xl p-6 sm:p-8">
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-sky-500 via-blue-500 to-cyan-400 flex items-center justify-center glow-sky">
-                <User className="w-8 h-8 stroke-[1.5] text-white" />
+              <div className="relative group">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                {user.profileImage ? (
+                  <img
+                    src={`http://localhost:4000${user.profileImage}`}
+                    alt={user.username}
+                    className="h-16 w-16 rounded-full object-cover border-2 border-sky-500/50 glow-sky"
+                  />
+                ) : (
+                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-sky-500 via-blue-500 to-cyan-400 flex items-center justify-center glow-sky">
+                    <User className="w-8 h-8 stroke-[1.5] text-white" />
+                  </div>
+                )}
+                <button
+                  onClick={handleProfileImageClick}
+                  disabled={uploadingImage}
+                  className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-sky-500 hover:bg-sky-600 flex items-center justify-center transition-colors disabled:opacity-50"
+                  title="Changer la photo de profil"
+                >
+                  {uploadingImage ? (
+                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Camera className="w-3 h-3 text-white" />
+                  )}
+                </button>
               </div>
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight text-neutral-50 mb-1">
@@ -170,6 +248,7 @@ function ProfilePage() {
                       rating={session.rating}
                       ratingCount={session.ratingCount}
                       createdBy={session.createdBy}
+                      creatorProfileImage={session.creator?.profileImage}
                       onClick={() => handleSessionClick(session.id)}
                     />
                     {!session.isShared && (
@@ -249,6 +328,7 @@ function ProfilePage() {
                     rating={session.rating}
                     ratingCount={session.ratingCount}
                     createdBy={session.createdBy}
+                    creatorProfileImage={session.creator?.profileImage}
                     onClick={() => handleSessionClick(session.id)}
                   />
                 ))}

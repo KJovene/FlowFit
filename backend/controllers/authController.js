@@ -76,6 +76,7 @@ export const register = async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        profileImage: user.profileImage,
       },
     });
   } catch (error) {
@@ -147,6 +148,7 @@ export const login = async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        profileImage: user.profileImage,
       },
     });
   } catch (error) {
@@ -181,6 +183,52 @@ export const getMe = async (req, res) => {
     });
   } catch (error) {
     console.error("GetMe error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc    Upload profile image
+// @route   POST /api/auth/profile-image
+// @access  Private
+export const uploadProfileImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Aucune image fournie",
+      });
+    }
+
+    const profileImagePath = `/uploads/profiles/${req.file.filename}`;
+
+    // Update user profile image
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Utilisateur non trouvé",
+      });
+    }
+
+    user.profileImage = profileImagePath;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Photo de profil mise à jour",
+      profileImage: profileImagePath,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        profileImage: user.profileImage,
+      },
+    });
+  } catch (error) {
+    console.error("Upload profile image error:", error);
     res.status(500).json({
       success: false,
       message: error.message,

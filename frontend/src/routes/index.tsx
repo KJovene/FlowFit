@@ -194,6 +194,7 @@ function HomePage() {
                 rating={session.rating}
                 ratingCount={session.ratingCount}
                 createdBy={session.creator?.username}
+                  creatorProfileImage={session.creator?.profileImage}
                 onClick={() => handleSessionClick(session.id)}
               />
             ))}
@@ -221,6 +222,7 @@ function HomePage() {
                 rating={session.rating}
                 ratingCount={session.ratingCount}
                 createdBy={session.creator?.username}
+                  creatorProfileImage={session.creator?.profileImage}
                 onClick={() => handleSessionClick(session.id)}
               />
             ))}
@@ -248,6 +250,7 @@ function HomePage() {
                 rating={session.rating}
                 ratingCount={session.ratingCount}
                 createdBy={session.creator?.username}
+                  creatorProfileImage={session.creator?.profileImage}
                 onClick={() => handleSessionClick(session.id)}
               />
             ))}
@@ -273,6 +276,7 @@ function HomePage() {
                 rating={session.rating}
                 ratingCount={session.ratingCount}
                 createdBy={session.creator?.username}
+                  creatorProfileImage={session.creator?.profileImage}
                 onClick={() => handleSessionClick(session.id)}
               />
             ))}
@@ -298,6 +302,7 @@ function HomePage() {
                 rating={session.rating}
                 ratingCount={session.ratingCount}
                 createdBy={session.creator?.username}
+                  creatorProfileImage={session.creator?.profileImage}
                 onClick={() => handleSessionClick(session.id)}
               />
             ))}
@@ -325,6 +330,7 @@ function HomePage() {
                 rating={session.rating}
                 ratingCount={session.ratingCount}
                 createdBy={session.creator?.username}
+                  creatorProfileImage={session.creator?.profileImage}
                 onClick={() => handleSessionClick(session.id)}
               />
             ))}

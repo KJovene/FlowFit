@@ -41,6 +41,10 @@ const User = sequelize.define(
         },
       },
     },
+    profileImage: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     timestamps: true,

@@ -26,6 +26,7 @@ export interface Session {
   creator?: {
     id: string;
     username: string;
+    profileImage?: string;
   };
 }
 

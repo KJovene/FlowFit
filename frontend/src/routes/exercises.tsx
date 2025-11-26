@@ -77,11 +77,8 @@ function ExercisesPage() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-50">
-            Exercices Communautaires
+            Exercices
           </h1>
-          <p className="text-base text-neutral-300">
-            Découvrez les exercices partagés par la communauté
-          </p>
         </div>
       </div>
 
@@ -151,7 +148,7 @@ function ExercisesPage() {
                 key={exercise.id}
                 className="rounded-2xl border border-neutral-800/90 bg-neutral-950/90 overflow-hidden group hover:border-neutral-700 transition-colors"
               >
-                <div className="aspect-video bg-neutral-900 relative">
+                <div className="h-28 bg-neutral-900 relative">
                   {exercise.image && (
                     <img
                       src={`http://localhost:4000${exercise.image}`}
@@ -201,7 +198,15 @@ function ExercisesPage() {
                     </div>
                     {exercise.creator?.username && (
                       <div className="flex items-center gap-1 text-[0.65rem] text-neutral-400">
-                        <UserIcon className="w-3 h-3" />
+                        {exercise.creator.profileImage ? (
+                          <img
+                            src={`http://localhost:4000${exercise.creator.profileImage}`}
+                            alt={exercise.creator.username}
+                            className="w-3 h-3 rounded-full object-cover"
+                          />
+                        ) : (
+                          <UserIcon className="w-3 h-3" />
+                        )}
                         <span>{exercise.creator.username}</span>
                       </div>
                     )}

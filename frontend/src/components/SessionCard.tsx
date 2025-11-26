@@ -13,6 +13,7 @@ interface SessionCardProps {
   rating?: number;
   ratingCount?: number;
   createdBy?: string;
+  creatorProfileImage?: string;
   isFavorite?: boolean;
   onFavoriteToggle?: (e: React.MouseEvent) => void;
   showFavoriteButton?: boolean;
@@ -56,6 +57,7 @@ export function SessionCard({
   rating = 0,
   ratingCount = 0,
   createdBy,
+  creatorProfileImage,
   isFavorite = false,
   onFavoriteToggle,
   showFavoriteButton = false,
@@ -112,7 +114,15 @@ export function SessionCard({
         <StarRating rating={rating} ratingCount={ratingCount} size="sm" />
         {createdBy && (
           <div className="flex items-center gap-1 text-[0.65rem] text-neutral-400">
-            <User className="w-3 h-3" />
+            {creatorProfileImage ? (
+              <img
+                src={`http://localhost:4000${creatorProfileImage}`}
+                alt={createdBy}
+                className="w-3 h-3 rounded-full object-cover"
+              />
+            ) : (
+              <User className="w-3 h-3" />
+            )}
             <span>{createdBy}</span>
           </div>
         )}

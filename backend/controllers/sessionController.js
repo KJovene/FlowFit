@@ -110,7 +110,7 @@ export const getAllSessions = async (req, res) => {
         {
           model: User,
           as: "creator",
-          attributes: ["id", "username"],
+          attributes: ["id", "username", "profileImage"],
         },
       ],
     });
@@ -121,6 +121,7 @@ export const getAllSessions = async (req, res) => {
       return {
         ...sessionData,
         createdBy: sessionData.creator?.username || "Inconnu",
+        creator: sessionData.creator || null,
         exercises: sessionData.exercises
           ? sessionData.exercises.map((exercise) => ({
               exercise: {
@@ -169,7 +170,7 @@ export const getSessionById = async (req, res) => {
         {
           model: User,
           as: "creator",
-          attributes: ["id", "username"],
+          attributes: ["id", "username", "profileImage"],
         },
       ],
     });
@@ -186,6 +187,7 @@ export const getSessionById = async (req, res) => {
     const formattedSession = {
       ...sessionData,
       createdBy: sessionData.creator?.username || "Inconnu",
+        creator: sessionData.creator || null,
       exercises: sessionData.exercises
         ? sessionData.exercises
             .map((exercise) => ({
@@ -562,7 +564,7 @@ export const getUserSessions = async (req, res) => {
         {
           model: User,
           as: "creator",
-          attributes: ["id", "username"],
+          attributes: ["id", "username", "profileImage"],
         },
       ],
     });
@@ -573,6 +575,7 @@ export const getUserSessions = async (req, res) => {
       return {
         ...sessionData,
         createdBy: sessionData.creator?.username || "Inconnu",
+        creator: sessionData.creator || null,
         exercises: sessionData.exercises
           ? sessionData.exercises.map((exercise) => ({
               exercise: {
@@ -709,7 +712,7 @@ export const getFavoriteSessions = async (req, res) => {
             {
               model: User,
               as: "creator",
-              attributes: ["id", "username"],
+              attributes: ["id", "username", "profileImage"],
             },
           ],
         },
@@ -727,6 +730,7 @@ export const getFavoriteSessions = async (req, res) => {
         return {
           ...sessionData,
           createdBy: sessionData.creator?.username || "Inconnu",
+        creator: sessionData.creator || null,
           exercises: sessionData.exercises
             ? sessionData.exercises.map((exercise) => ({
                 exercise: {

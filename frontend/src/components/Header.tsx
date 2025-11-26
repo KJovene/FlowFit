@@ -35,7 +35,15 @@ export function Header() {
                 to="/profile"
                 className="hidden sm:inline-flex items-center gap-2 rounded-full border border-neutral-700/80 bg-neutral-900/80 hover:border-sky-500/80 text-xs sm:text-sm text-neutral-100 px-3 sm:px-4 py-1.5 transition-colors"
               >
-                <User className="w-3.5 h-3.5" />
+                {user?.profileImage ? (
+                  <img
+                    src={`http://localhost:4000${user.profileImage}`}
+                    alt={user.username}
+                    className="w-3.5 h-3.5 rounded-full object-cover"
+                  />
+                ) : (
+                  <User className="w-3.5 h-3.5" />
+                )}
                 <span>{user?.username || "Profil"}</span>
               </Link>
 
@@ -52,7 +60,15 @@ export function Header() {
                 to="/profile"
                 className="sm:hidden inline-flex items-center justify-center rounded-full bg-gradient-to-r from-sky-500 via-blue-500 to-cyan-400 text-xs font-medium tracking-tight text-neutral-950 glow-sky px-3 py-1.5"
               >
-                <User className="w-3.5 h-3.5" />
+                {user?.profileImage ? (
+                  <img
+                    src={`http://localhost:4000${user.profileImage}`}
+                    alt={user.username}
+                    className="w-3.5 h-3.5 rounded-full object-cover"
+                  />
+                ) : (
+                  <User className="w-3.5 h-3.5" />
+                )}
               </Link>
             </>
           ) : (

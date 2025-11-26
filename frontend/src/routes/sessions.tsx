@@ -195,11 +195,8 @@ function SessionsPage() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-50">
-            Mes séances d'entraînement
+            Séances d'entraînement
           </h1>
-          <p className="text-base text-neutral-300">
-            Créez et gérez vos séances personnalisées
-          </p>
         </div>
         <div className="flex gap-2">
           <select
@@ -210,19 +207,11 @@ function SessionsPage() {
             <option value="desc">Meilleures notes</option>
             <option value="asc">Notes les plus basses</option>
           </select>
-          <button
-            onClick={() => setShowModal(true)}
-            className="btn-primary px-4 py-2"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nouvelle séance
-          </button>
         </div>
       </div>
 
       {/* Filter buttons */}
       <div className="mb-6">
-        <p className="text-xs text-neutral-400 mb-2">Catégorie</p>
         <div className="flex gap-2 overflow-x-auto pb-2">
           <button
             onClick={() => setFilterCategory("all")}
@@ -349,7 +338,15 @@ function SessionsPage() {
                     />
                     {session.createdBy && (
                       <div className="flex items-center gap-1 text-[0.65rem] text-neutral-400">
-                        <User className="w-3 h-3" />
+                        {session.creator?.profileImage ? (
+                          <img
+                            src={`http://localhost:4000${session.creator.profileImage}`}
+                            alt={session.createdBy}
+                            className="w-3 h-3 rounded-full object-cover"
+                          />
+                        ) : (
+                          <User className="w-3 h-3" />
+                        )}
                         <span>{session.createdBy}</span>
                       </div>
                     )}
@@ -362,8 +359,7 @@ function SessionsPage() {
                       }
                       className="flex-1 btn-primary py-2 text-sm"
                     >
-                      <Play className="w-3.5 h-3.5 mr-1.5" />
-                      Démarrer
+                      Détails
                     </button>
 
                     <button

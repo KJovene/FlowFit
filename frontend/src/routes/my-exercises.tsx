@@ -342,7 +342,7 @@ function MyExercisesPage() {
                 key={exercise.id}
                 className="rounded-2xl border border-neutral-800/90 bg-neutral-950/90 overflow-hidden group hover:border-neutral-700 transition-colors"
               >
-                <div className="aspect-video bg-neutral-900 relative">
+                <div className="h-28 bg-neutral-900 relative">
                   {exercise.image && (
                     <img
                       src={`http://localhost:4000${exercise.image}`}
@@ -392,7 +392,15 @@ function MyExercisesPage() {
                     </div>
                     {exercise.creator?.username && (
                       <div className="flex items-center gap-1 text-[0.65rem] text-neutral-400">
-                        <UserIcon className="w-3 h-3" />
+                        {exercise.creator.profileImage ? (
+                          <img
+                            src={`http://localhost:4000${exercise.creator.profileImage}`}
+                            alt={exercise.creator.username}
+                            className="w-3 h-3 rounded-full object-cover"
+                          />
+                        ) : (
+                          <UserIcon className="w-3 h-3" />
+                        )}
                         <span>{exercise.creator.username}</span>
                       </div>
                     )}
