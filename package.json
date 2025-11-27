@@ -1,0 +1,26 @@
+{
+  "name": "flowfit",
+  "version": "1.0.0",
+  "description": "FlowFit - Sport à la maison (Musculation, Yoga, Mobilité)",
+  "scripts": {
+    "start": "echo '🚀 Démarrage de FlowFit...' && npm run start:backend & npm run start:frontend",
+    "start:backend": "cd backend && npm run server",
+    "start:frontend": "cd frontend && npm run dev",
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "db:create": "createdb FlowFit",
+    "db:drop": "dropdb FlowFit",
+    "db:reset": "npm run db:drop && npm run db:create"
+  },
+  "keywords": [
+    "fitness",
+    "workout",
+    "yoga",
+    "mobility",
+    "home-fitness"
+  ],
+  "author": "FlowFit Team",
+  "license": "MIT"
+}

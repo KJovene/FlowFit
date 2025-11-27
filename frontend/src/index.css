@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors - Dark theme with sky/blue/cyan gradients */
+  --color-neutral-925: #0f1012;
+  --color-neutral-850: #18181b;
+
+  /* Custom gradients */
+  --gradient-primary: linear-gradient(to right, #0ea5e9, #3b82f6, #22d3ee);
+  --gradient-hero: linear-gradient(to bottom, #0a0a0a, #0a0a0a, #0f172a);
+
+  /* Shadows */
+  --shadow-glow-sky: 0 0 40px rgba(14, 165, 233, 0.4);
+  --shadow-glow-cyan: 0 0 40px rgba(34, 211, 238, 0.3);
+
+  /* Backdrop blur */
+  --backdrop-blur-md: blur(12px);
+  --backdrop-blur-xl: blur(24px);
+}
+
+/* Base styles */
+* {
+  border-color: rgb(38 38 38 / 0.8);
+}
+
+body {
+  @apply bg-neutral-950 text-neutral-50 antialiased;
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 1;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-neutral-950;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-neutral-800 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-neutral-700;
+}
+
+/* Custom utility classes */
+.glow-sky {
+  box-shadow: var(--shadow-glow-sky);
+}
+
+.glow-cyan {
+  box-shadow: var(--shadow-glow-cyan);
+}
+
+.text-gradient-primary {
+  @apply bg-gradient-to-r from-sky-400 via-blue-400 to-cyan-300 bg-clip-text text-transparent;
+}
+
+.bg-gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.glass-effect {
+  @apply backdrop-blur-md bg-neutral-950/60 border border-neutral-800/80;
+}
+
+.card-hover {
+  @apply transition-all duration-300 hover:border-neutral-600/80 hover:shadow-lg hover:shadow-black/40;
+}
+
+/* Button animations */
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-full bg-gradient-to-r from-sky-500 via-blue-500 to-cyan-400 
+         text-sm font-medium tracking-tight text-neutral-950 shadow-lg transition-all duration-300;
+  box-shadow: 0 10px 25px rgba(14, 165, 233, 0.4);
+}
+
+.btn-primary:hover {
+  @apply scale-105;
+  box-shadow: 0 15px 35px rgba(14, 165, 233, 0.5);
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-full border border-neutral-700/80 bg-neutral-900/80 
+         text-sm text-neutral-100 transition-colors duration-300 hover:border-neutral-500/80 hover:bg-neutral-800/80;
+}
+
+/* Card styles */
+.workout-card {
+  @apply relative rounded-3xl border border-neutral-800/90 bg-gradient-to-br overflow-hidden;
+}
+
+.workout-card-musculation {
+  @apply from-slate-900/90 via-neutral-950 to-neutral-950;
+}
+
+.workout-card-yoga {
+  @apply from-slate-900/90 via-slate-950 to-neutral-950;
+}
+
+.workout-card-mobility {
+  @apply from-slate-900/90 via-slate-950 to-neutral-950;
+}
+
+/* Loading animation */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+  }
+  50% {
+    opacity: 0.5;
+    box-shadow: 0 0 40px rgba(14, 165, 233, 0.6);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Section styles */
+.section-title {
+  @apply text-2xl sm:text-3xl font-bold tracking-tight text-neutral-50 mb-6;
+}
+
+.section-subtitle {
+  @apply text-sm sm:text-base text-neutral-400 mb-8;
+}
+
+.section-container {
+  @apply mb-12 sm:mb-16;
+}
+
+.sessions-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+}
+
+/* Category badge colors */
+.category-badge-musculation {
+  @apply bg-sky-500/20 text-sky-300 border border-sky-500/30;
+}
+
+.category-badge-yoga {
+  @apply bg-cyan-500/20 text-cyan-300 border border-cyan-500/30;
+}
+
+.category-badge-mobilite {
+  @apply bg-blue-500/20 text-blue-300 border border-blue-500/30;
+}
+
+.category-badge-mixte {
+  @apply bg-purple-500/20 text-purple-300 border border-purple-500/30;
+}
+
+/* Loading skeleton */
+.skeleton {
+  @apply animate-pulse bg-neutral-800/50 rounded-lg;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .mobile-bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 z-50 border-t border-neutral-800/90 bg-neutral-950/95 backdrop-blur-md;
+  }
+}
