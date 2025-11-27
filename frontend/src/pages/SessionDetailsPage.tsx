@@ -132,8 +132,8 @@ export const SessionDetailsPage = ({ sessionId }: SessionDetailsPageProps) => {
   return (
     <section className="mx-auto max-w-4xl px-4 sm:px-6 pt-10 sm:pt-16 lg:pt-20 pb-10 sm:pb-16">
       <BackButton
-        onClick={() => navigate({ to: "/sessions" })}
-        label="Retour aux séances"
+        onClick={() => navigate({ to: "/" })}
+        label="Retour à l'accueil"
       />
 
       {/* Header */}
@@ -257,7 +257,15 @@ const SessionHeader = ({
           )}
           {session.createdBy && (
             <div className="flex items-center gap-1 text-sm text-neutral-400">
-              <User className="w-4 h-4" />
+              {session.creator?.profileImage ? (
+                <img
+                  src={`http://localhost:4000${session.creator.profileImage}`}
+                  alt={session.createdBy}
+                  className="w-4 h-4 rounded-full object-cover"
+                />
+              ) : (
+                <User className="w-4 h-4" />
+              )}
               <span>Par {session.createdBy}</span>
             </div>
           )}

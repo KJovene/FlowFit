@@ -39,6 +39,14 @@ export const useUserExercises = (filterShared: FilterSharedType = "all") => {
     imageFile: File
   ) => {
     try {
+      // Vérifier la taille du fichier côté client
+      if (imageFile.size > 10 * 1024 * 1024) {
+        return {
+          success: false,
+          error: "L'image ne doit pas dépasser 10 MB",
+        };
+      }
+
       const data = new FormData();
       data.append("name", formData.name);
       data.append("description", formData.description);

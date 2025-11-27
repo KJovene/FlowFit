@@ -1,13 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useAuthStore } from "@/stores/authStore";
-import {
-  Pause,
-  Play,
-  X,
-  CheckCircle2,
-  ChevronRight,
-  Coffee,
-} from "lucide-react";
+import { Pause, Play, X, CheckCircle2, ChevronRight } from "lucide-react";
 import { CircularTimer } from "@/components/CircularTimer";
 import { useSessionPlayer } from "@/hooks/useSessionPlayer";
 
@@ -78,13 +71,13 @@ export const SessionPlayerPage = ({
           <h1 className="text-3xl sm:text-4xl font-bold text-neutral-50 mb-4">
             Séance terminée !
           </h1>
-          <p className="text-lg text-neutral-300 mb-2">Félicitations 🎉</p>
+          <p className="text-lg text-neutral-300 mb-2">Félicitations</p>
           <p className="text-neutral-400 mb-8">
             Vous avez complété {totalExercises} exercice
             {totalExercises > 1 ? "s" : ""}
           </p>
-          <button onClick={handleExit} className="btn-primary w-full">
-            Retour aux séances
+          <button onClick={handleExit} className="btn-primary w-full py-2">
+            Retour à l'accueil
           </button>
         </div>
       </section>
@@ -234,7 +227,6 @@ export const SessionPlayerPage = ({
         {phase === "rest" && (
           <div className="text-center space-y-8">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <Coffee className="w-8 h-8 text-cyan-400" />
               <h2 className="text-2xl sm:text-3xl font-semibold text-neutral-50">
                 Temps de repos
               </h2>

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { StarRating } from "./StarRating";
-import { User, Heart } from "lucide-react";
+import { User, Heart, Lock } from "lucide-react";
 
 interface SessionCardProps {
   title: string;
@@ -17,6 +17,7 @@ interface SessionCardProps {
   isFavorite?: boolean;
   onFavoriteToggle?: (e: React.MouseEvent) => void;
   showFavoriteButton?: boolean;
+  isPrivate?: boolean;
 }
 
 const categoryColors = {
@@ -61,6 +62,7 @@ export function SessionCard({
   isFavorite = false,
   onFavoriteToggle,
   showFavoriteButton = false,
+  isPrivate = false,
 }: SessionCardProps) {
   const colors = categoryColors[category];
 
@@ -111,7 +113,14 @@ export function SessionCard({
       )}
 
       <div className="flex items-center justify-between gap-2 mt-2">
-        <StarRating rating={rating} ratingCount={ratingCount} size="sm" />
+        <div className="flex items-center gap-2">
+          <StarRating rating={rating} ratingCount={ratingCount} size="sm" />
+          {isPrivate && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 text-xs">
+              <Lock className="w-3 h-3" />
+            </span>
+          )}
+        </div>
         {createdBy && (
           <div className="flex items-center gap-1 text-[0.65rem] text-neutral-400">
             {creatorProfileImage ? (

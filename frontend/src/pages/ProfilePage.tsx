@@ -152,25 +152,18 @@ export const ProfilePage = () => {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {mySessions.slice(0, 4).map((session) => (
-                  <div key={session.id} className="relative">
-                    <SessionCard
-                      title={session.name}
-                      exerciseCount={session.exercises?.length || 0}
-                      category={session.category}
-                      rating={session.rating}
-                      ratingCount={session.ratingCount}
-                      createdBy={session.createdBy}
-                      creatorProfileImage={session.creator?.profileImage}
-                      onClick={() => handleSessionClick(session.id)}
-                    />
-                    {!session.isShared && (
-                      <div className="absolute top-3 right-16">
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs">
-                          <Lock className="w-3 h-3" />
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  <SessionCard
+                    key={session.id}
+                    title={session.name}
+                    exerciseCount={session.exercises?.length || 0}
+                    category={session.category}
+                    rating={session.rating}
+                    ratingCount={session.ratingCount}
+                    createdBy={session.createdBy}
+                    creatorProfileImage={session.creator?.profileImage}
+                    onClick={() => handleSessionClick(session.id)}
+                    isPrivate={!session.isShared}
+                  />
                 ))}
               </div>
 

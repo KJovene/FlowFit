@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Star, Heart } from "lucide-react";
+import { Star, Heart, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { useSessions } from "@/hooks/useSessions";
 import { useSessionRating } from "@/hooks/useSessionRating";
@@ -319,8 +319,9 @@ const SessionActions = ({
       <button
         onClick={onDelete}
         className="h-9 w-9 rounded-full border border-neutral-700 bg-neutral-900 text-neutral-300 hover:text-red-300 hover:border-red-500/50 transition-colors flex items-center justify-center"
+        title="Supprimer cette séance"
       >
-        🗑️
+        <Trash2 className="w-3.5 h-3.5" />
       </button>
     )}
   </div>

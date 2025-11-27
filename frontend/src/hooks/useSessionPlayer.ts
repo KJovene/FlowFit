@@ -115,7 +115,7 @@ export const useSessionPlayer = ({
 
   const handleExit = () => {
     if (phase === "completed") {
-      navigate({ to: "/sessions" });
+      navigate({ to: "/" });
     } else {
       setShowExitConfirm(true);
     }

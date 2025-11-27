@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Plus, Play, Star, Trash2 } from "lucide-react";
+import { Plus, Star, Trash2, Lock, Share2, User, Heart } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { useUserSessions } from "@/hooks/useUserSessions";
 import { useSessionRating } from "@/hooks/useSessionRating";
+import { useFavoriteSessions } from "@/hooks/useFavoriteSessions";
 import { SessionBuilder } from "@/components/SessionBuilder";
 import { StarRating } from "@/components/StarRating";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -17,7 +18,6 @@ import {
   formatDuration,
 } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
-import { Lock, Share2, User } from "lucide-react";
 import type {
   FilterCategoryType,
   FilterSharedType,
@@ -41,6 +41,16 @@ export const MySessionsPage = () => {
     sharedCount,
     privateCount,
   } = useUserSessions(filterShared, sortOrder);
+
+  const { favorites, togglingFavorite, toggleFavorite } = useFavoriteSessions();
+
+  const handleToggleFavorite = async (
+    sessionId: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    await toggleFavorite(sessionId);
+  };
 
   if (!isAuthenticated) {
     navigate({ to: "/login" });
@@ -169,8 +179,11 @@ export const MySessionsPage = () => {
       ) : (
         <MySessionsGrid
           sessions={filteredByCategory}
+          favorites={favorites}
+          togglingFavorite={togglingFavorite}
           user={user}
           onNavigate={navigate}
+          onToggleFavorite={handleToggleFavorite}
           onDelete={deleteSession}
           onReload={loadSessions}
         />
@@ -190,16 +203,22 @@ export const MySessionsPage = () => {
 // Composant MySessionsGrid
 interface MySessionsGridProps {
   sessions: any[];
+  favorites: Set<string>;
+  togglingFavorite: string | null;
   user: any;
   onNavigate: any;
+  onToggleFavorite: (id: string, e: React.MouseEvent) => void;
   onDelete: (id: string) => void;
   onReload: () => void;
 }
 
 const MySessionsGrid = ({
   sessions,
+  favorites,
+  togglingFavorite,
   user,
   onNavigate,
+  onToggleFavorite,
   onDelete,
   onReload,
 }: MySessionsGridProps) => {
@@ -221,18 +240,8 @@ const MySessionsGrid = ({
         return (
           <div
             key={session.id}
-            className="rounded-2xl border border-neutral-800/90 bg-neutral-950/90 overflow-hidden group hover:border-neutral-700 transition-colors relative"
+            className="rounded-2xl border border-neutral-800/90 bg-neutral-950/90 overflow-hidden group hover:border-neutral-700 transition-colors"
           >
-            {/* Badge Privée */}
-            {!session.isShared && (
-              <div className="absolute top-4 right-16 z-10">
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs backdrop-blur-sm">
-                  <Lock className="w-3 h-3" />
-                  Privée
-                </span>
-              </div>
-            )}
-
             <div className="p-4">
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-base font-semibold text-neutral-50 flex-1 pr-2">
@@ -255,18 +264,11 @@ const MySessionsGrid = ({
                 {session.description}
               </p>
 
-              <div className="flex items-center gap-3 mb-3 text-xs text-neutral-400">
-                <span>{exerciseCount} exercices</span>
-                <span>{formatDuration(session.duration)}</span>
-                <span
-                  className={cn(
-                    "font-medium",
-                    getDifficultyColor(session.difficulty)
-                  )}
-                >
-                  {session.difficulty}
-                </span>
-              </div>
+              <SessionMeta
+                exerciseCount={exerciseCount}
+                duration={session.duration}
+                difficulty={session.difficulty}
+              />
 
               <div className="flex items-center justify-between mb-4">
                 <StarRating
@@ -275,41 +277,28 @@ const MySessionsGrid = ({
                   size="sm"
                 />
                 {session.createdBy && (
-                  <div className="flex items-center gap-1 text-[0.65rem] text-neutral-400">
-                    <User className="w-3 h-3" />
-                    <span>{session.createdBy}</span>
-                  </div>
+                  <CreatorInfo
+                    username={session.createdBy}
+                    profileImage={session.creator?.profileImage}
+                  />
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() =>
-                    onNavigate({ to: `/session-details/${session.id}` })
-                  }
-                  className="flex-1 btn-primary py-2 text-sm"
-                >
-                  <Play className="w-3.5 h-3.5 mr-1.5" />
-                  Démarrer
-                </button>
-
-                <button
-                  onClick={openModal}
-                  className="h-9 w-9 rounded-full border border-neutral-700 bg-neutral-900 text-neutral-300 hover:text-yellow-400 hover:border-yellow-500/50 transition-colors flex items-center justify-center"
-                  title="Noter cette séance"
-                >
-                  <Star className="w-3.5 h-3.5" />
-                </button>
-
-                {user && session.creator?.id === user.id && (
-                  <button
-                    onClick={() => onDelete(session.id)}
-                    className="h-9 w-9 rounded-full border border-neutral-700 bg-neutral-900 text-neutral-300 hover:text-red-300 hover:border-red-500/50 transition-colors flex items-center justify-center"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
+              <SessionActions
+                sessionId={session.id}
+                isFavorite={favorites.has(session.id)}
+                isToggling={togglingFavorite === session.id}
+                isShared={session.isShared}
+                isOwner={user && session.creator?.id === user.id}
+                onNavigate={() =>
+                  onNavigate({ to: `/session-details/${session.id}` })
+                }
+                onToggleFavorite={(e: React.MouseEvent) =>
+                  onToggleFavorite(session.id, e)
+                }
+                onRate={openModal}
+                onDelete={() => onDelete(session.id)}
+              />
             </div>
 
             {/* Modal de notation */}
@@ -329,6 +318,102 @@ const MySessionsGrid = ({
     </div>
   );
 };
+
+// Composants auxiliaires
+const SessionMeta = ({ exerciseCount, duration, difficulty }: any) => (
+  <div className="flex items-center gap-3 mb-3 text-xs text-neutral-400">
+    <div className="flex items-center gap-1">
+      <span>{exerciseCount} exercices</span>
+    </div>
+    <div className="flex items-center gap-1">
+      <span>{formatDuration(duration)}</span>
+    </div>
+    <span className={cn("font-medium", getDifficultyColor(difficulty))}>
+      {difficulty}
+    </span>
+  </div>
+);
+
+const CreatorInfo = ({ username, profileImage }: any) => (
+  <div className="flex items-center gap-1 text-[0.65rem] text-neutral-400">
+    {profileImage ? (
+      <img
+        src={`http://localhost:4000${profileImage}`}
+        alt={username}
+        className="w-3 h-3 rounded-full object-cover"
+      />
+    ) : (
+      <User className="w-3 h-3" />
+    )}
+    <span>{username}</span>
+  </div>
+);
+
+const SessionActions = ({
+  isFavorite,
+  isToggling,
+  isShared,
+  isOwner,
+  onNavigate,
+  onToggleFavorite,
+  onRate,
+  onDelete,
+}: any) => (
+  <div className="flex items-center gap-2">
+    <button onClick={onNavigate} className="flex-1 btn-primary py-2 text-sm">
+      Détails
+    </button>
+
+    <button
+      onClick={onToggleFavorite}
+      disabled={isToggling}
+      className={cn(
+        "h-9 w-9 rounded-full border transition-all duration-300 flex items-center justify-center",
+        isFavorite
+          ? "border-red-500/50 bg-red-500/20 text-red-400 hover:bg-red-500/30"
+          : "border-neutral-700 bg-neutral-900 text-neutral-400 hover:text-red-400 hover:border-red-500/50"
+      )}
+      title={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+    >
+      <Heart className={cn("w-3.5 h-3.5", isFavorite && "fill-current")} />
+    </button>
+
+    <button
+      onClick={onRate}
+      className="h-9 w-9 rounded-full border border-neutral-700 bg-neutral-900 text-neutral-300 hover:text-yellow-400 hover:border-yellow-500/50 transition-colors flex items-center justify-center"
+      title="Noter cette séance"
+    >
+      <Star className="w-3.5 h-3.5" />
+    </button>
+
+    {isOwner && (
+      <button
+        onClick={onDelete}
+        className="h-9 w-9 rounded-full border border-neutral-700 bg-neutral-900 text-neutral-300 hover:text-red-300 hover:border-red-500/50 transition-colors flex items-center justify-center"
+        title="Supprimer cette séance"
+      >
+        <Trash2 className="w-3.5 h-3.5" />
+      </button>
+    )}
+
+    <button
+      disabled
+      className={cn(
+        "h-9 w-9 rounded-full border transition-all duration-300 flex items-center justify-center cursor-default",
+        isShared
+          ? "border-cyan-500/50 bg-cyan-500/20 text-cyan-400"
+          : "border-amber-500/50 bg-amber-500/20 text-amber-400"
+      )}
+      title={isShared ? "Séance partagée" : "Séance privée"}
+    >
+      {isShared ? (
+        <Share2 className="w-3.5 h-3.5" />
+      ) : (
+        <Lock className="w-3.5 h-3.5" />
+      )}
+    </button>
+  </div>
+);
 
 // Composant RatingModal
 const RatingModal = ({
