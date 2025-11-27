@@ -1,0 +1,388 @@
+import Exercise from "../models/Exercise.js";
+import User from "../models/User.js";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Créer un exercice
+export const createExercise = async (req, res) => {
+  try {
+    const { name, description, category, subcategory } = req.body;
+
+    // Vérifications
+    if (!name || !description || !category || !subcategory) {
+      return res.status(400).json({
+        success: false,
+        message: "Veuillez remplir tous les champs requis",
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Veuillez télécharger une image",
+      });
+    }
+
+    // Créer l'exercice avec Sequelize
+    const exercise = await Exercise.create({
+      name,
+      description,
+      category,
+      subcategory,
+      image: req.file.supabaseUrl,
+      createdBy: req.user?.id || null,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Exercice créé avec succès",
+      data: exercise,
+    });
+  } catch (error) {
+    console.error("Erreur création exercice:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer tous les exercices
+export const getAllExercises = async (req, res) => {
+  try {
+    const { category } = req.query;
+
+    const whereClause = category ? { category } : {};
+
+    const exercises = await Exercise.findAll({
+      where: whereClause,
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username", "profileImage"],
+        },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      count: exercises.length,
+      data: exercises,
+    });
+  } catch (error) {
+    console.error("Erreur récupération exercices:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer les exercices par catégorie
+export const getExercisesByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+
+    const exercises = await Exercise.findAll({
+      where: { category },
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username", "profileImage"],
+        },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      category,
+      count: exercises.length,
+      data: exercises,
+    });
+  } catch (error) {
+    console.error("Erreur récupération par catégorie:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer les exercices par catégorie et sous-catégorie
+export const getExercisesBySubcategory = async (req, res) => {
+  try {
+    const { category, subcategory } = req.params;
+
+    const exercises = await Exercise.findAll({
+      where: {
+        category,
+        subcategory,
+      },
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username", "profileImage"],
+        },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      category,
+      subcategory,
+      count: exercises.length,
+      data: exercises,
+    });
+  } catch (error) {
+    console.error("Erreur récupération par sous-catégorie:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer un exercice par ID
+export const getExerciseById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const exercise = await Exercise.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username", "profileImage"],
+        },
+      ],
+    });
+
+    if (!exercise) {
+      return res.status(404).json({
+        success: false,
+        message: "Exercice non trouvé",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: exercise,
+    });
+  } catch (error) {
+    console.error("Erreur récupération exercice:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Mettre à jour un exercice
+export const updateExercise = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, category, subcategory } = req.body;
+
+    let exercise = await Exercise.findByPk(id);
+
+    if (!exercise) {
+      return res.status(404).json({
+        success: false,
+        message: "Exercice non trouvé",
+      });
+    }
+
+    // Mettre à jour l'image si une nouvelle est fournie
+    if (req.file) {
+      // Note: Avec Supabase, l'ancienne image reste accessible
+      // Si vous voulez la supprimer, utilisez deleteFromSupabase() de config/supabase.js
+      exercise.image = req.file.supabaseUrl;
+    }
+
+    // Mettre à jour les champs avec Sequelize
+    await exercise.update({
+      name: name || exercise.name,
+      description: description || exercise.description,
+      category: category || exercise.category,
+      subcategory: subcategory || exercise.subcategory,
+      image: exercise.image,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Exercice mis à jour avec succès",
+      data: exercise,
+    });
+  } catch (error) {
+    console.error("Erreur mise à jour exercice:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Supprimer un exercice
+export const deleteExercise = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const exercise = await Exercise.findByPk(id);
+
+    if (!exercise) {
+      return res.status(404).json({
+        success: false,
+        message: "Exercice non trouvé",
+      });
+    }
+
+    // Supprimer l'image
+    const imagePath = path.join(
+      __dirname,
+      "..",
+      exercise.image.replace(/^\//, "")
+    );
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
+
+    await exercise.destroy();
+
+    res.status(200).json({
+      success: true,
+      message: "Exercice supprimé avec succès",
+    });
+  } catch (error) {
+    console.error("Erreur suppression exercice:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Toggle le partage d'un exercice (communautaire ou privé)
+export const toggleExerciseSharing = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const exercise = await Exercise.findByPk(id);
+
+    if (!exercise) {
+      return res.status(404).json({
+        success: false,
+        message: "Exercice non trouvé",
+      });
+    }
+
+    // Vérifier que l'utilisateur est le créateur
+    if (exercise.createdBy !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Vous n'êtes pas autorisé à modifier cet exercice",
+      });
+    }
+
+    // Toggle isShared
+    await exercise.update({ isShared: !exercise.isShared });
+
+    res.status(200).json({
+      success: true,
+      message: exercise.isShared
+        ? "Exercice partagé avec la communauté"
+        : "Exercice retiré de la communauté",
+      data: exercise,
+    });
+  } catch (error) {
+    console.error("Erreur toggle partage exercice:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer les exercices communautaires (partagés)
+export const getCommunityExercises = async (req, res) => {
+  try {
+    const { category } = req.query;
+
+    const whereClause = { isShared: true };
+    if (category && category !== "all") {
+      whereClause.category = category;
+    }
+
+    const exercises = await Exercise.findAll({
+      where: whereClause,
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username", "profileImage"],
+        },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      count: exercises.length,
+      data: exercises,
+    });
+  } catch (error) {
+    console.error("Erreur récupération exercices communautaires:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Récupérer les exercices créés par l'utilisateur
+export const getMyExercises = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { shared } = req.query; // "true", "false" ou undefined pour tous
+
+    const whereClause = { createdBy: userId };
+    if (shared === "true") {
+      whereClause.isShared = true;
+    } else if (shared === "false") {
+      whereClause.isShared = false;
+    }
+
+    const exercises = await Exercise.findAll({
+      where: whereClause,
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "creator",
+          attributes: ["id", "username", "profileImage"],
+        },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      count: exercises.length,
+      data: exercises,
+    });
+  } catch (error) {
+    console.error("Erreur récupération exercices utilisateur:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
