@@ -55,7 +55,7 @@ export const createSession = async (req, res) => {
       duration: totalDuration,
       difficulty,
       restTime: parseInt(restTime),
-      image: req.file ? `/uploads/sessions/${req.file.filename}` : null,
+      image: req.file ? req.file.supabaseUrl : null,
       createdBy: req.user?.id || null,
     });
 
@@ -187,7 +187,7 @@ export const getSessionById = async (req, res) => {
     const formattedSession = {
       ...sessionData,
       createdBy: sessionData.creator?.username || "Inconnu",
-        creator: sessionData.creator || null,
+      creator: sessionData.creator || null,
       exercises: sessionData.exercises
         ? sessionData.exercises
             .map((exercise) => ({
@@ -235,19 +235,11 @@ export const updateSession = async (req, res) => {
       });
     }
 
-    // Mettre à jour l'image si nouvelle
+    // Mettre à jour l'image si une nouvelle est fournie
     if (req.file) {
-      if (session.image) {
-        const oldImagePath = path.join(
-          __dirname,
-          "..",
-          session.image.replace(/^\//, "")
-        );
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
-      }
-      session.image = `/uploads/sessions/${req.file.filename}`;
+      // Note: Avec Supabase, l'ancienne image reste accessible
+      // Si vous voulez la supprimer, utilisez deleteFromSupabase() de config/supabase.js
+      session.image = req.file.supabaseUrl;
     }
 
     // Calculer la nouvelle durée si exercices fournis
@@ -730,7 +722,7 @@ export const getFavoriteSessions = async (req, res) => {
         return {
           ...sessionData,
           createdBy: sessionData.creator?.username || "Inconnu",
-        creator: sessionData.creator || null,
+          creator: sessionData.creator || null,
           exercises: sessionData.exercises
             ? sessionData.exercises.map((exercise) => ({
                 exercise: {

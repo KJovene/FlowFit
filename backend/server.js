@@ -16,7 +16,9 @@ const port = process.env.PORT || 4000;
 // middleware
 app.use(express.json());
 app.use(cors());
-app.use("/uploads", express.static("uploads"));
+
+// Note: Les fichiers sont maintenant stockés sur Supabase Storage
+// app.use("/uploads", express.static("uploads")); // Plus nécessaire
 
 // db connection
 connectDB();
