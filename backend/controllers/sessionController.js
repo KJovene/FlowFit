@@ -309,6 +309,16 @@ export const deleteSession = async (req, res) => {
       });
     }
 
+    // Supprimer d'abord tous les enregistrements liés
+    // 1. Supprimer les notes de la séance
+    await SessionRating.destroy({ where: { sessionId: id } });
+
+    // 2. Supprimer les exercices de la séance
+    await SessionExercise.destroy({ where: { sessionId: id } });
+
+    // 3. Supprimer des favoris
+    await FavoriteSession.destroy({ where: { sessionId: id } });
+
     // Supprimer l'image si elle existe
     if (session.image) {
       const imagePath = path.join(
@@ -321,6 +331,7 @@ export const deleteSession = async (req, res) => {
       }
     }
 
+    // Maintenant on peut supprimer la séance
     await session.destroy();
 
     res.status(200).json({

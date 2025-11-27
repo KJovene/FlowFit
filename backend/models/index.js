@@ -23,10 +23,12 @@ Exercise.belongsToMany(Session, {
 Session.hasMany(SessionExercise, {
   foreignKey: "sessionId",
   as: "sessionExercises",
+  onDelete: "CASCADE",
 });
 
 SessionExercise.belongsTo(Session, {
   foreignKey: "sessionId",
+  onDelete: "CASCADE",
 });
 
 SessionExercise.belongsTo(Exercise, {
@@ -64,11 +66,13 @@ SessionRating.belongsTo(User, {
 SessionRating.belongsTo(Session, {
   foreignKey: "sessionId",
   as: "session",
+  onDelete: "CASCADE",
 });
 
 Session.hasMany(SessionRating, {
   foreignKey: "sessionId",
   as: "ratings",
+  onDelete: "CASCADE",
 });
 
 User.hasMany(SessionRating, {
@@ -85,6 +89,7 @@ FavoriteSession.belongsTo(User, {
 FavoriteSession.belongsTo(Session, {
   foreignKey: "sessionId",
   as: "session",
+  onDelete: "CASCADE",
 });
 
 User.hasMany(FavoriteSession, {
@@ -95,6 +100,7 @@ User.hasMany(FavoriteSession, {
 Session.hasMany(FavoriteSession, {
   foreignKey: "sessionId",
   as: "favoritedBy",
+  onDelete: "CASCADE",
 });
 
 export {
