@@ -338,7 +338,7 @@ const CreatorInfo = ({ username, profileImage }: any) => (
   <div className="flex items-center gap-1 text-[0.65rem] text-neutral-400">
     {profileImage ? (
       <img
-        src={`http://localhost:4000${profileImage}`}
+        src={profileImage}
         alt={username}
         className="w-3 h-3 rounded-full object-cover"
       />

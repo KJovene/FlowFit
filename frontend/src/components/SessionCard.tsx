@@ -125,7 +125,7 @@ export function SessionCard({
           <div className="flex items-center gap-1 text-[0.65rem] text-neutral-400">
             {creatorProfileImage ? (
               <img
-                src={`http://localhost:4000${creatorProfileImage}`}
+                src={creatorProfileImage}
                 alt={createdBy}
                 className="w-3 h-3 rounded-full object-cover"
               />

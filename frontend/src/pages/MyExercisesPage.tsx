@@ -198,7 +198,7 @@ const MyExercisesGrid = ({
             <div className="h-28 bg-neutral-900 relative">
               {exercise.image && (
                 <img
-                  src={`http://localhost:4000${exercise.image}`}
+                  src={exercise.image}
                   alt={exercise.name}
                   className="w-full h-full object-cover"
                 />

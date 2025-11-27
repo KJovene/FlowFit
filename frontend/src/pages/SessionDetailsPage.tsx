@@ -259,7 +259,7 @@ const SessionHeader = ({
             <div className="flex items-center gap-1 text-sm text-neutral-400">
               {session.creator?.profileImage ? (
                 <img
-                  src={`http://localhost:4000${session.creator.profileImage}`}
+                  src={session.creator.profileImage}
                   alt={session.createdBy}
                   className="w-4 h-4 rounded-full object-cover"
                 />
@@ -347,7 +347,7 @@ const ExercisesList = ({
             {ex.exercise.image && (
               <div className="w-30 h-30 rounded-lg overflow-hidden bg-neutral-800 flex-shrink-0">
                 <img
-                  src={`http://localhost:4000${ex.exercise.image}`}
+                  src={ex.exercise.image}
                   alt={ex.exercise.name}
                   className="w-full h-full object-cover"
                 />

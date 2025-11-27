@@ -63,7 +63,7 @@ export const ProfilePage = () => {
                 />
                 {user.profileImage ? (
                   <img
-                    src={`http://localhost:4000${user.profileImage}`}
+                    src={user.profileImage}
                     alt={user.username}
                     className="h-16 w-16 rounded-full object-cover border-2 border-sky-500/50 glow-sky"
                   />
@@ -309,7 +309,7 @@ export const ProfilePage = () => {
                     <div className="aspect-video bg-neutral-900 relative">
                       {exercise.image && (
                         <img
-                          src={`http://localhost:4000${exercise.image}`}
+                          src={exercise.image}
                           alt={exercise.name}
                           className="w-full h-full object-cover"
                         />

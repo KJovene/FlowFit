@@ -160,7 +160,7 @@ export const SessionPlayerPage = ({
                   </div>
                   <div className="relative w-72 h-72 rounded-full overflow-hidden bg-neutral-800 border-4 border-neutral-900">
                     <img
-                      src={`http://localhost:4000${currentExercise.exercise.image}`}
+                      src={currentExercise.exercise.image}
                       alt={currentExercise.exercise.name}
                       className="w-full h-full object-cover"
                     />

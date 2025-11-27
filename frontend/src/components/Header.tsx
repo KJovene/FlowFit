@@ -37,7 +37,7 @@ export function Header() {
               >
                 {user?.profileImage ? (
                   <img
-                    src={`http://localhost:4000${user.profileImage}`}
+                    src={user.profileImage}
                     alt={user.username}
                     className="w-3.5 h-3.5 rounded-full object-cover"
                   />
@@ -62,7 +62,7 @@ export function Header() {
               >
                 {user?.profileImage ? (
                   <img
-                    src={`http://localhost:4000${user.profileImage}`}
+                    src={user.profileImage}
                     alt={user.username}
                     className="w-3.5 h-3.5 rounded-full object-cover"
                   />

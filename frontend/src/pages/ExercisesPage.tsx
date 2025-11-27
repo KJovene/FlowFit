@@ -97,7 +97,7 @@ const ExercisesGrid = ({ exercises }: ExercisesGridProps) => {
             <div className="h-28 bg-neutral-900 relative">
               {exercise.image && (
                 <img
-                  src={`http://localhost:4000${exercise.image}`}
+                  src={exercise.image}
                   alt={exercise.name}
                   className="w-full h-full object-cover"
                 />
@@ -146,7 +146,7 @@ const ExercisesGrid = ({ exercises }: ExercisesGridProps) => {
                   <div className="flex items-center gap-1 text-[0.65rem] text-neutral-400">
                     {exercise.creator.profileImage ? (
                       <img
-                        src={`http://localhost:4000${exercise.creator.profileImage}`}
+                        src={exercise.creator.profileImage}
                         alt={exercise.creator.username}
                         className="w-3 h-3 rounded-full object-cover"
                       />
