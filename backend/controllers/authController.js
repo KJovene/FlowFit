@@ -202,7 +202,8 @@ export const uploadProfileImage = async (req, res) => {
       });
     }
 
-    const profileImagePath = `/uploads/profiles/${req.file.filename}`;
+    // Use Supabase URL from middleware
+    const profileImageUrl = req.file.supabaseUrl;
 
     // Update user profile image
     const user = await User.findByPk(req.user.id);
@@ -213,13 +214,13 @@ export const uploadProfileImage = async (req, res) => {
       });
     }
 
-    user.profileImage = profileImagePath;
+    user.profileImage = profileImageUrl;
     await user.save();
 
     res.status(200).json({
       success: true,
       message: "Photo de profil mise à jour",
-      profileImage: profileImagePath,
+      profileImage: profileImageUrl,
       user: {
         id: user.id,
         username: user.username,

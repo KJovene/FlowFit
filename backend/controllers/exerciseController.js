@@ -32,7 +32,7 @@ export const createExercise = async (req, res) => {
       description,
       category,
       subcategory,
-      image: `/uploads/exercises/${req.file.filename}`,
+      image: req.file.supabaseUrl,
       createdBy: req.user?.id || null,
     });
 
@@ -203,17 +203,9 @@ export const updateExercise = async (req, res) => {
 
     // Mettre à jour l'image si une nouvelle est fournie
     if (req.file) {
-      // Supprimer l'ancienne image
-      const oldImagePath = path.join(
-        __dirname,
-        "..",
-        exercise.image.replace(/^\//, "")
-      );
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
-      }
-
-      exercise.image = `/uploads/exercises/${req.file.filename}`;
+      // Note: Avec Supabase, l'ancienne image reste accessible
+      // Si vous voulez la supprimer, utilisez deleteFromSupabase() de config/supabase.js
+      exercise.image = req.file.supabaseUrl;
     }
 
     // Mettre à jour les champs avec Sequelize
