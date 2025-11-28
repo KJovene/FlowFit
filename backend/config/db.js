@@ -3,27 +3,20 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Utiliser le pooler Supabase par défaut pour éviter les problèmes IPv6 sur Render
-const defaultDbHost = "aws-1-eu-west-3.pooler.supabase.com";
-const defaultDbPort = "6543";
-const defaultDbUser = "postgres.qqvbujhblnbraqbsjstf";
+// URL de connexion pooler Supabase (évite les problèmes IPv6 sur Render)
+const databaseUrl = process.env.DATABASE_URL || 
+  "postgresql://postgres.qqvbujhblnbraqbsjstf:J.k19071995@aws-1-eu-west-3.pooler.supabase.com:6543/postgres?sslmode=require";
 
-// Construction de l'URI de connexion
-const databaseUrl =
-  process.env.DATABASE_URL ||
-  `postgresql://${process.env.DB_USER || defaultDbUser}:${process.env.DB_PASSWORD}@${process.env.DB_HOST || defaultDbHost}:${process.env.DB_PORT || defaultDbPort}/${process.env.DB_NAME || "postgres"}?sslmode=require`;
+console.log("🔗 Using database URL:", databaseUrl.replace(/:[^:@]+@/, ':***@'));
 
 const sequelize = new Sequelize(databaseUrl, {
   dialect: "postgres",
   logging: process.env.NODE_ENV === "production" ? false : console.log,
   dialectOptions: {
-    ssl:
-      process.env.NODE_ENV === "production"
-        ? {
-            require: true,
-            rejectUnauthorized: false,
-          }
-        : false,
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
     connectTimeout: 30000,
     statement_timeout: 30000,
   },
@@ -52,16 +45,6 @@ export const connectDB = async () => {
   const maxRetries = 5;
   let attempt = 0;
 
-  // Log des credentials pour debug (masquer le password)
-  console.log("🔍 DB Config:", {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD ? "***SET***" : "❌ MISSING",
-    nodeEnv: process.env.NODE_ENV,
-  });
-
   while (attempt < maxRetries) {
     try {
       await sequelize.authenticate();
@@ -80,11 +63,6 @@ export const connectDB = async () => {
         `❌ DB connection attempt ${attempt}/${maxRetries} failed:`,
         error.message
       );
-      console.error("📋 Error details:", {
-        name: error.name,
-        code: error.parent?.code,
-        errno: error.parent?.errno,
-      });
 
       if (attempt >= maxRetries) {
         console.error(
