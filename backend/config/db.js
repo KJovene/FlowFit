@@ -3,12 +3,10 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// URL de connexion Neon.tech (PostgreSQL gratuit et stable)
-const databaseUrl =
-  process.env.DATABASE_URL ||
-  "postgresql://neondb_owner:npg_goYICv89HMue@ep-orange-math-ab7ifjke-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require";
+// HARDCODED: Neon.tech URL pour bypasser les variables d'environnement
+const databaseUrl = "postgresql://neondb_owner:npg_goYICv89HMue@ep-orange-math-ab7ifjke-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require";
 
-console.log("🔗 Using database URL:", databaseUrl.replace(/:[^:@]+@/, ":***@"));
+console.log("🔗 Using HARDCODED Neon database");
 
 const sequelize = new Sequelize(databaseUrl, {
   dialect: "postgres",
