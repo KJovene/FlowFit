@@ -48,6 +48,16 @@ export const connectDB = async () => {
   const maxRetries = 5;
   let attempt = 0;
 
+  // Log des credentials pour debug (masquer le password)
+  console.log("🔍 DB Config:", {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD ? "***SET***" : "❌ MISSING",
+    nodeEnv: process.env.NODE_ENV,
+  });
+
   while (attempt < maxRetries) {
     try {
       await sequelize.authenticate();
@@ -66,6 +76,11 @@ export const connectDB = async () => {
         `❌ DB connection attempt ${attempt}/${maxRetries} failed:`,
         error.message
       );
+      console.error("📋 Error details:", {
+        name: error.name,
+        code: error.parent?.code,
+        errno: error.parent?.errno,
+      });
 
       if (attempt >= maxRetries) {
         console.error(
