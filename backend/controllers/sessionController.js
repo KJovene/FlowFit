@@ -26,7 +26,7 @@ export const createSession = async (req, res) => {
     });
 
     // Vérifications
-    if (!name || !description || !category || !difficulty || !restTime) {
+    if (!name || !category || !difficulty || !restTime) {
       return res.status(400).json({
         success: false,
         message: "Veuillez remplir tous les champs requis",

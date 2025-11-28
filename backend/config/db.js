@@ -4,7 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // HARDCODED: Neon.tech URL pour bypasser les variables d'environnement
-const databaseUrl = "postgresql://neondb_owner:npg_goYICv89HMue@ep-orange-math-ab7ifjke-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require";
+const databaseUrl =
+  "postgresql://neondb_owner:npg_goYICv89HMue@ep-orange-math-ab7ifjke-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require";
 
 console.log("🔗 Using HARDCODED Neon database");
 

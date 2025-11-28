@@ -15,7 +15,7 @@ const Session = sequelize.define(
     },
     description: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
     category: {
       type: DataTypes.ENUM("Musculation", "Yoga", "Mobilité", "Mixte"),

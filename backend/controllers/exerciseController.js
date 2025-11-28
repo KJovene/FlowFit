@@ -12,7 +12,7 @@ export const createExercise = async (req, res) => {
     const { name, description, category, subcategory } = req.body;
 
     // Vérifications
-    if (!name || !description || !category || !subcategory) {
+    if (!name || !category || !subcategory) {
       return res.status(400).json({
         success: false,
         message: "Veuillez remplir tous les champs requis",
