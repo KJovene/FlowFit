@@ -22,6 +22,8 @@ const sequelize = new Sequelize(
           : false,
       connectTimeout: 30000,
       statement_timeout: 30000,
+      // Forcer IPv4 pour éviter les problèmes ENETUNREACH avec Render
+      family: 4,
     },
     pool: {
       max: 3,
@@ -37,6 +39,7 @@ const sequelize = new Sequelize(
         /ECONNREFUSED/,
         /ECONNRESET/,
         /EPIPE/,
+        /ENETUNREACH/,
         /PROTOCOL_CONNECTION_LOST/,
         /SequelizeConnectionError/,
       ],
