@@ -3,9 +3,15 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Construction de l'URI de connexion pour forcer IPv4
-const databaseUrl = process.env.DATABASE_URL || 
-  `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?sslmode=require`;
+// Utiliser le pooler Supabase par défaut pour éviter les problèmes IPv6 sur Render
+const defaultDbHost = "aws-1-eu-west-3.pooler.supabase.com";
+const defaultDbPort = "6543";
+const defaultDbUser = "postgres.qqvbujhblnbraqbsjstf";
+
+// Construction de l'URI de connexion
+const databaseUrl =
+  process.env.DATABASE_URL ||
+  `postgresql://${process.env.DB_USER || defaultDbUser}:${process.env.DB_PASSWORD}@${process.env.DB_HOST || defaultDbHost}:${process.env.DB_PORT || defaultDbPort}/${process.env.DB_NAME || "postgres"}?sslmode=require`;
 
 const sequelize = new Sequelize(databaseUrl, {
   dialect: "postgres",
