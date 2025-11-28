@@ -3,49 +3,44 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME || "FlowFit",
-  process.env.DB_USER || "postgres",
-  process.env.DB_PASSWORD || "postgres",
-  {
-    host: process.env.DB_HOST || "localhost",
-    port: process.env.DB_PORT || 5432,
-    dialect: "postgres",
-    logging: process.env.NODE_ENV === "production" ? false : console.log,
-    dialectOptions: {
-      ssl:
-        process.env.NODE_ENV === "production"
-          ? {
-              require: true,
-              rejectUnauthorized: false,
-            }
-          : false,
-      connectTimeout: 30000,
-      statement_timeout: 30000,
-      // Forcer IPv4 pour éviter les problèmes ENETUNREACH avec Render
-      family: 4,
-    },
-    pool: {
-      max: 3,
-      min: 0,
-      acquire: 30000,
-      idle: 10000,
-      evict: 1000,
-    },
-    retry: {
-      max: 3,
-      match: [
-        /ETIMEDOUT/,
-        /ECONNREFUSED/,
-        /ECONNRESET/,
-        /EPIPE/,
-        /ENETUNREACH/,
-        /PROTOCOL_CONNECTION_LOST/,
-        /SequelizeConnectionError/,
-      ],
-    },
-  }
-);
+// Construction de l'URI de connexion pour forcer IPv4
+const databaseUrl = process.env.DATABASE_URL || 
+  `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?sslmode=require`;
+
+const sequelize = new Sequelize(databaseUrl, {
+  dialect: "postgres",
+  logging: process.env.NODE_ENV === "production" ? false : console.log,
+  dialectOptions: {
+    ssl:
+      process.env.NODE_ENV === "production"
+        ? {
+            require: true,
+            rejectUnauthorized: false,
+          }
+        : false,
+    connectTimeout: 30000,
+    statement_timeout: 30000,
+  },
+  pool: {
+    max: 3,
+    min: 0,
+    acquire: 30000,
+    idle: 10000,
+    evict: 1000,
+  },
+  retry: {
+    max: 3,
+    match: [
+      /ETIMEDOUT/,
+      /ECONNREFUSED/,
+      /ECONNRESET/,
+      /EPIPE/,
+      /ENETUNREACH/,
+      /PROTOCOL_CONNECTION_LOST/,
+      /SequelizeConnectionError/,
+    ],
+  },
+});
 
 export const connectDB = async () => {
   const maxRetries = 5;
