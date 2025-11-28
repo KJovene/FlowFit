@@ -5,6 +5,7 @@ import exerciseRoutes from "./routes/exercises.js";
 import sessionRoutes from "./routes/sessions.js";
 import authRoutes from "./routes/auth.js";
 import { requestTimeout, errorHandler } from "./middleware/timeout.js";
+import { startKeepAlive } from "./utils/keepAlive.js";
 import dotenv from "dotenv";
 
 // Load environment variables
@@ -49,4 +50,9 @@ app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server started on http://localhost:${port}`);
+
+  // Activer le keep-alive uniquement en production sur Render
+  if (process.env.RENDER_URL) {
+    startKeepAlive(`${process.env.RENDER_URL}/health`);
+  }
 });
