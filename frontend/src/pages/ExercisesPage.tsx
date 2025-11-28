@@ -125,9 +125,11 @@ const ExercisesGrid = ({ exercises }: ExercisesGridProps) => {
               <h3 className="text-base font-semibold text-neutral-50 mb-1">
                 {exercise.name}
               </h3>
-              <p className="text-xs text-neutral-400 mb-3 line-clamp-2">
-                {exercise.description}
-              </p>
+              {exercise.description && (
+                <p className="text-xs text-neutral-400 mb-3 line-clamp-2">
+                  {exercise.description}
+                </p>
+              )}
 
               <div className="flex items-center justify-between">
                 <div className="flex gap-2">

@@ -203,7 +203,11 @@ const SessionHeader = ({
         <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-50 mb-2">
           {session.name}
         </h1>
-        <p className="text-base text-neutral-300 mb-4">{session.description}</p>
+        {session.description && (
+          <p className="text-base text-neutral-300 mb-4">
+            {session.description}
+          </p>
+        )}
 
         <div className="flex items-center gap-3 flex-wrap">
           <span
@@ -358,9 +362,11 @@ const ExercisesList = ({
               <h3 className="text-base font-medium text-neutral-50 mb-1">
                 {ex.exercise.name}
               </h3>
-              <p className="text-xs text-neutral-400 mb-3 line-clamp-2">
-                {ex.exercise.description}
-              </p>
+              {ex.exercise.description && (
+                <p className="text-xs text-neutral-400 mb-3 line-clamp-2">
+                  {ex.exercise.description}
+                </p>
+              )}
 
               <div className="flex items-center gap-4">
                 <div>

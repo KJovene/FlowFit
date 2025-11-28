@@ -121,8 +121,8 @@ export function SessionBuilder({ onClose, onSuccess }: SessionBuilderProps) {
     e.preventDefault();
     setError("");
 
-    if (!name || !description) {
-      setError("Veuillez remplir tous les champs");
+    if (!name) {
+      setError("Veuillez remplir le nom de la séance");
       return;
     }
 
@@ -207,10 +207,9 @@ export function SessionBuilder({ onClose, onSuccess }: SessionBuilderProps) {
 
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-neutral-200 mb-1.5">
-                Description
+                Description (optionnelle)
               </label>
               <textarea
-                required
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}

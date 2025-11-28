@@ -193,9 +193,11 @@ const SessionGrid = ({
                 </span>
               </div>
 
-              <p className="text-xs text-neutral-400 mb-4 line-clamp-2">
-                {session.description}
-              </p>
+              {session.description && (
+                <p className="text-xs text-neutral-400 mb-4 line-clamp-2">
+                  {session.description}
+                </p>
+              )}
 
               <SessionMeta
                 exerciseCount={exerciseCount}

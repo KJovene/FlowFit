@@ -226,9 +226,11 @@ const MyExercisesGrid = ({
               <h3 className="text-base font-semibold text-neutral-50 mb-1">
                 {exercise.name}
               </h3>
-              <p className="text-xs text-neutral-400 mb-3 line-clamp-2">
-                {exercise.description}
-              </p>
+              {exercise.description && (
+                <p className="text-xs text-neutral-400 mb-3 line-clamp-2">
+                  {exercise.description}
+                </p>
+              )}
 
               <div className="flex items-center justify-between mb-3">
                 <span
@@ -322,8 +324,8 @@ const ExerciseModal = ({
     e.preventDefault();
     setError("");
 
-    if (!formData.name || !formData.description) {
-      setError("Veuillez remplir tous les champs");
+    if (!formData.name) {
+      setError("Veuillez remplir le nom de l'exercice");
       return;
     }
 
@@ -386,10 +388,9 @@ const ExerciseModal = ({
 
           <div>
             <label className="block text-sm font-medium text-neutral-200 mb-1.5">
-              Description
+              Description (optionnelle)
             </label>
             <textarea
-              required
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })

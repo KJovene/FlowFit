@@ -164,9 +164,11 @@ export const FavoriteSessionsPage = () => {
                     </span>
                   </div>
 
-                  <p className="text-xs text-neutral-400 mb-4 line-clamp-2">
-                    {session.description}
-                  </p>
+                  {session.description && (
+                    <p className="text-xs text-neutral-400 mb-4 line-clamp-2">
+                      {session.description}
+                    </p>
+                  )}
 
                   <div className="flex items-center gap-3 mb-3 text-xs text-neutral-400">
                     <div className="flex items-center gap-1">
